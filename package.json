@@ -1,0 +1,15 @@
+{
+  "name": "RZTableWidget",
+  "version": "0.0.1",
+  "description": "Widget de criação de tabelas de dados",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "table",
+    "grid"
+  ],
+  "author": "Anderson Norberto Santos",
+  "license": "MIT"
+}

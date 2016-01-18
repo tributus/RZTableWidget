@@ -1,0 +1,23 @@
+{
+  "name": "RZTableWidget",
+  "version": "0.0.1",
+  "authors": [
+    "anderson.santos <anderson.santos@pcinformatica.com.br>"
+  ],
+  "description": "Widget de criação de tabelas de dados",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "table",
+    "grid"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
