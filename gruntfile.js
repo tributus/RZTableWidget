@@ -5,9 +5,12 @@ module.exports = function (grunt) {
     grunt.initConfig({
             options: {
                 srcFiles: [
-                    "src/NamespaceDeclares.js",
-                    "src/RuteZangada.js",
-                    "src/WidgetEngine.js"
+                    //"src/NamespaceDeclares.js",
+                    //"src/InterfaceAndEvents.js",
+                    //"src/FormHelpers.js",
+                    //"src/FieldRenderers/*.js",
+                    //"src/FormRenderers/*.js",
+                    "src/RZTableWidget.js"
                 ],
                 test: {
                     getFilesToTest: function () {
@@ -19,7 +22,9 @@ module.exports = function (grunt) {
                     getLibs: function () {
                         var $this = this;
                         var libs = [
-                            "lib/jquery-2.1.4.min.js"
+                            "lib/jquery-2.1.4.min.js",
+                            "lib/jasmine-query.js",
+                            "lib/RZClientEngine-0.0.1.min.js"
                         ];
                         var output = '';
                         libs.forEach(function (it) {
@@ -42,7 +47,7 @@ module.exports = function (grunt) {
             concat: {
                 dist: {
                     src: ['<%= options.srcFiles %>'],
-                    dest: "dist/RZClientEngine.js"
+                    dest: "dist/RZFormWidget.js"
                 }
             },
             uglify: {
@@ -51,14 +56,20 @@ module.exports = function (grunt) {
                 },
                 my_target: {
                     files: {
-                        "dist/RZClientEngine.min.js": ['dist/RZClientEngine.js']
+                        "dist/RZFormWidget.min.js": ['dist/RZFormWidget.js']
                     }
                 }
             },
             copy: {
                 test: {
-                    src: 'dist/RZClientEngine.js',
-                    dest: 'test/src/RZClientEngine.js'
+                    src: 'dist/RZFormWidget.js',
+                    dest: 'test/src/RZFormWidget.js'
+                },
+                test_lib:{
+                    cwd: 'lib',
+                    src: '*.js',
+                    dest: 'test/lib',
+                    expand:true
                 },
                 test_template: {
                     options: {
@@ -87,7 +98,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jasmine');
 
 
-    grunt.registerTask('default', ['concat', 'uglify', 'copy:test', 'copy:test_template']);
+    grunt.registerTask('default', ['concat', 'uglify', 'copy:test','copy:test_lib', 'copy:test_template']);
     grunt.registerTask('test', ['jasmine']);
 
 };
