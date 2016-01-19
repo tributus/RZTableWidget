@@ -23,11 +23,24 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
     };
 
     var renderTableHead = function (sb, params) {
-        //sb.append('<thead>');
-        //sb.append('<tr>');
-        //sb.append('<th>Name</th><th>Age</th><th>Gender</th>');
-        //sb.append('</tr>');
-        //sb.append('</thead>');
+        if(params.renderTableHead){
+            sb.append('<thead>');
+            sb.append('<tr>');
+
+            params.columns.forEach(function (col) {
+                sb.append('<th>');
+                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.columnRenderer || 'default');
+                //sb.append(col.label || col.name);
+                var value = col.label || col.name;
+                sb.append(renderer(value,col));
+                sb.append('</th>');
+
+            });
+
+            sb.append('</tr>');
+            sb.append('</thead>');
+
+        }
     };
 
     var renderTableBody = function (sb, params) {
@@ -43,25 +56,19 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
         sb.append('</tbody>');
     };
 
-    //rowData = [
-    //  {name:'Anderson',age:'38',gender:'m'}
-    //  {name:'natty',age:'30',gender:'f'}
-    // ]
-
     var renderDataRows = function (sb, rowData) {
-        var keys = undefined;
-        var numCols = 0;
         rowData.forEach(function (it) {
             sb.appendFormat('<tr>');
-            //first row defines data format
-            //if(keys===undefined) {
-            //    keys = Object.keys(it);
-            //    numCols = keys.length;
-            //}
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td>');
-                sb.append(it[col.name]);
-                //renderColUsingProperColRenderer(col.name,col.renderer);
+                //sb.append(it[col.name]);
+
+                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.columnRenderer || 'default');
+                sb.append(renderer(it[col.name],it));
+
+
+
+
                 sb.appendFormat('</td>');
             });
 

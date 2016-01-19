@@ -11,5 +11,8 @@
     "grid"
   ],
   "author": "Anderson Norberto Santos",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^0.4.5"
+  }
 }

@@ -7,20 +7,31 @@
     <script src="../lib/semantic/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../lib/semantic/semantic.min.css">
     <script src="../lib/RZClientEngine-0.0.1.min.js"></script>
-    <script src="../dist/RZFormWidget.js"></script></head>
+    <script src="../dist/RZTableWidget.js"></script></head>
 <body>
-    <div id="tableContainer">
+    <h1>Setup mínimo com dados estáticos</h1>
+    <div id="tableContainer"></div>
 
-    </div>
+    <h1>Column definitions</h1>
+    <div id="tc2"></div>
 </body>
 <script>
-    var params = {};
-    params.tableClass="";
-    params.rowsData = [
+    var srdata= [
         {name:"anderson", age:38,gender:"m"},
-        {name:"natty", age:27,gender:"f"}
+        {name:"maria", age:27,gender:"f"},
+        {name:"isabela", age:32,gender:"f"},
+        {name:"pedro", age:39,gender:"f"}
     ];
-
+    var params = {};
+    params.rowsData = srdata;
     var widgetInstance = ruteZangada.renderWidget("rz-table", "tableContainer", params);
+
+
+    /********************************exemplo 2 ***************************************/
+    var p2 = {};
+    p2.tableClass="ui table stripped";
+    p2.rowsData = srdata;
+
+    var wi2 = ruteZangada.renderWidget("rz-table", "tc2",p2);
 </script>
 </html>

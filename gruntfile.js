@@ -8,8 +8,8 @@ module.exports = function (grunt) {
                     //"src/NamespaceDeclares.js",
                     //"src/InterfaceAndEvents.js",
                     //"src/FormHelpers.js",
-                    //"src/FieldRenderers/*.js",
-                    //"src/FormRenderers/*.js",
+                    "src/TableHelpers.js",
+                    "src/CellRenderers/*.js",
                     "src/RZTableWidget.js"
                 ],
                 test: {
@@ -47,7 +47,7 @@ module.exports = function (grunt) {
             concat: {
                 dist: {
                     src: ['<%= options.srcFiles %>'],
-                    dest: "dist/RZFormWidget.js"
+                    dest: "dist/RZTableWidget.js"
                 }
             },
             uglify: {
@@ -56,14 +56,14 @@ module.exports = function (grunt) {
                 },
                 my_target: {
                     files: {
-                        "dist/RZFormWidget.min.js": ['dist/RZFormWidget.js']
+                        "dist/RZTableWidget.min.js": ['dist/RZTableWidget.js']
                     }
                 }
             },
             copy: {
                 test: {
-                    src: 'dist/RZFormWidget.js',
-                    dest: 'test/src/RZFormWidget.js'
+                    src: 'dist/RZTableWidget.js',
+                    dest: 'test/src/RZTableWidget.js'
                 },
                 test_lib:{
                     cwd: 'lib',

@@ -21,3 +21,5 @@ Parâmetro|Descrição|Default
 --- | --- | ---
 tableClass|classe utilizada na declaração *table*. Os valores deste parâmetro obedecem as regras do semantic-ui. **Exemplos:** `'ui celled table,ui celled padded table','ui stripped table','ui very basic collapsing celled table'`| `ui celled table` 
 rowsDta|dados da tabela. pode ser um objeto ou a url de  um serviço [melhorar esta definição]|`undefined`
+renderTableHead|define se o cabeçalho da tabela será renderizado|`true`
+columns|definição de colunas|`undefined`
