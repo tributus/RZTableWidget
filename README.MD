@@ -19,16 +19,22 @@ no arquivo package.json
 
 |  Parâmetro  |  Descrição                                     | Default                                              |
 |-------------|------------------------------------------------|------------------------------------------------------|
-|tableClass   |classe utilizada na declaração *table*. Os valores deste parâmetro obedecem as regras do|                                                      | 
-||||
+|tableClass   |classe utilizada na declaração *table*. Os      |                                                      | 
+|             |valores deste parâmetro obedecem as regras do   |                                                      |
 |             |semantic-ui.                                    |  ui celled table                                     |
-|             |####Exemplos:                                   |                                                      |
-|             |+ ui celled table,ui celled padded table        |                                                      |
-|             |+ ui stripped table                             |                                                      |
-|             |+ ui very basic collapsing celled table         |                                                      |
+|             |Exemplos:                                       |                                                      |
+|             |  ui celled table,ui celled padded table        |                                                      |
+|             |  ui stripped table                             |                                                      |
+|             |  ui very basic collapsing celled table         |                                                      |
 |             |                                                |                                                      |
 |rowsDta      |dados da tabela. pode ser um objeto ou a url de |                                                      |
 |             |um serviço [melhorar esta definição]            |                                                      |
 |             |                                                |                                                      |
+|             |                                                |                                                      |
+|             |                                                |                                                      |
 
 
+Markdown | Less | Pretty
+--- | --- | ---
+*Still* | `renders loren ipsum dolor sit amet` | **nicely**
+1 | 2 | 3
