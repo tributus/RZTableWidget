@@ -36,5 +36,5 @@ no arquivo package.json
 
 Markdown | Less | Pretty
 --- | --- | ---
-*Still* | `renders loren ipsum dolor sit amet` | **nicely**
+*Still* | `renders loren ipsum dolor sit amet renders loren ipsum dolor sit amet renders loren ipsum dolor sit amet renders loren ipsum dolor sit amet` | **nicely**
 1 | 2 | 3
