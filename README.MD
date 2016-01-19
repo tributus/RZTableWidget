@@ -19,8 +19,8 @@ no arquivo package.json
 
 |  Parâmetro  |  Descrição                                     | Default                                              |
 |-------------|------------------------------------------------|------------------------------------------------------|
-|tableClass   |classe utilizada na declaração *table*. Os      |                                                      | 
-|             |valores deste parâmetro obedecem as regras do   |                                                      |
+|tableClass   |classe utilizada na declaração *table*. Os valores deste parâmetro obedecem as regras do|                                                      | 
+||||
 |             |semantic-ui.                                    |  ui celled table                                     |
 |             |####Exemplos:                                   |                                                      |
 |             |+ ui celled table,ui celled padded table        |                                                      |
