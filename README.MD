@@ -26,9 +26,9 @@ no arquivo package.json
 |             |+ ui celled table,ui celled padded table        |                                                      |
 |             |+ ui stripped table                             |                                                      |
 |             |+ ui very basic collapsing celled table         |                                                      |
-|-------------|------------------------------------------------|------------------------------------------------------|
+|             |                                                |                                                      |
 |rowsDta      |dados da tabela. pode ser um objeto ou a url de |                                                      |
 |             |um serviço [melhorar esta definição]            |                                                      |
-|-------------|------------------------------------------------|------------------------------------------------------|
+|             |                                                |                                                      |
 
 
