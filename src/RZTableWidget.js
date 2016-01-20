@@ -28,10 +28,9 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
             sb.append('<tr>');
 
             params.columns.forEach(function (col) {
-                sb.append('<th>');
-                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.columnRenderer || 'default');
-                //sb.append(col.label || col.name);
-                var value = col.label || col.name;
+                sb.appendFormat('<th{0}>',resolveHeaderClass(col));
+                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.headerRender || 'default');
+                var value = col.headerText || col.bindingSource;
                 sb.append(renderer(value,col));
                 sb.append('</th>');
 
@@ -41,6 +40,15 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
             sb.append('</thead>');
 
         }
+    };
+
+    var resolveHeaderClass = function (col) {
+        var classData = "";
+        //column size
+        if(col.size !==undefined){
+            classData += rz.widgets.tableHelpers.sizeNames[col.size] +  " wide";
+        }
+        return (classData !="")? ' class="'+classData+'"':"";
     };
 
     var renderTableBody = function (sb, params) {
@@ -61,18 +69,10 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
             sb.appendFormat('<tr>');
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td>');
-                //sb.append(it[col.name]);
-
-                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.columnRenderer || 'default');
-                sb.append(renderer(it[col.name],it));
-
-
-
-
+                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.cellRenderer || 'default');
+                sb.append(renderer(it[col.bindingSource],it));
                 sb.appendFormat('</td>');
             });
-
-
             sb.appendFormat('</tr>');
         });
     };
@@ -84,7 +84,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
             $this.params.columns = [];
             keys.forEach(function (it) {
                 var columnDefinition = {
-                    name: it,
+                    bindingSource: it,
                     renderer: "text"
                 };
                 $this.params.columns.push(columnDefinition);

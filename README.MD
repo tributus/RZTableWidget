@@ -23,3 +23,16 @@ tableClass|classe utilizada na declaração *table*. Os valores deste parâmetro ob
 rowsDta|dados da tabela. pode ser um objeto ou a url de  um serviço [melhorar esta definição]|`undefined`
 renderTableHead|define se o cabeçalho da tabela será renderizado|`true`
 columns|definição de colunas|`undefined`
+
+#TODO DOCUMENTAR:
+
+```html
+columns = [
+    { 
+        headerText:'Texto do cabeçalho', 
+        bindingSource:'nome da propriedade mapeada',
+        cellRenderer:"renderizador da célula de dados (pode ser o nome de um render registrado ou uma function(value,[full]))",
+        headerRender:"renderizador do cabeçalho de dados (pode ser o nome de um render registrado ou uma function(value,[full]))"
+    }
+]
+```

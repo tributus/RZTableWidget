@@ -29,9 +29,30 @@
 
     /********************************exemplo 2 ***************************************/
     var p2 = {};
-    p2.tableClass="ui table stripped";
+    p2.tableClass="ui sortable table stripped";
     p2.rowsData = srdata;
+    p2.columns = [
+        {
+            headerText:'Nome',
+            bindingSource:'name',
+            cellRenderer:'default',
+            size:10
+        },
+        { headerText:'Idade', bindingSource:'age',size:3},
+        { headerText:'Gênero', bindingSource:'gender',cellRenderer:genderCustomRenderer,headerRender:headerCustomRenderer,size:3}
+    ];
 
     var wi2 = ruteZangada.renderWidget("rz-table", "tc2",p2);
+
+    function genderCustomRenderer(value,full){
+        return (value=="m")?
+                '<span style="color:blue">Masculino</span>':
+                '<span style="color:pink">Feminino</span>';
+    }
+
+    function headerCustomRenderer(value,full){
+        console.log(value,full);
+        return '<span>' + value + ' <i class="heterosexual icon"></i></span>';
+    }
 </script>
 </html>
