@@ -6,8 +6,7 @@ module.exports = function (grunt) {
             options: {
                 srcFiles: [
                     //"src/NamespaceDeclares.js",
-                    //"src/InterfaceAndEvents.js",
-                    //"src/FormHelpers.js",
+                    "src/InterfaceAndEvents.js",
                     "src/TableHelpers.js",
                     "src/CellRenderers/*.js",
                     "src/RZTableWidget.js"

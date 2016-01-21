@@ -1,7 +1,7 @@
 /**
  * Created by anderson.santos on 18/01/2016.
  */
-rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], function () {
+rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidgetHelpers.TableWidgetInterface , [], function () {
     var $this = this;
 
     this.initialize = function (params, initialized) {
@@ -80,7 +80,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
 
     var ensureColumns = function () {
         if ($this.params.columns === undefined) {
-            var dataRow = $this.getDataRowAt(0);
+            var dataRow = $this.getRowData(0);
             var keys = Object.keys(dataRow);
             $this.params.columns = [];
             keys.forEach(function (it) {
@@ -93,18 +93,19 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
         }
     };
 
-    this.getDataRowAt = function (position) {
-        var tprd = $this.params.rowsData;
-        return (tprd !== undefined && tprd.length > position) ? $this.params.rowsData[position] : undefined;
-    };
-
     this.addRows = function (rowData) {
         var sb = new StringBuilder();
         if(Object.prototype.toString.call(rowData)!="[object Array]"){
             rowData = [rowData];
         }
         renderDataRows(sb,rowData);
+        $this.params.rowsData = $this.params.rowsData.concat(rowData);
         $('#'+ this.params.elementID + ' tbody').append(sb.toString());
+    };
+
+    this.getRowData = function (position) {
+        var tprd = $this.params.rowsData;
+        return (tprd !== undefined && tprd.length > position) ? $this.params.rowsData[position] : undefined;
     };
 
 
