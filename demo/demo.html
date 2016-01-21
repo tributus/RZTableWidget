@@ -19,6 +19,8 @@
 <div id="tc2"></div>
 <br>
 <button id="b1">addRow</button>
+<br><br>
+<input id="i1" value="0"><button id="b2">getRowData(position)</button>
 </body>
 <script>
     var srdata = [
@@ -56,15 +58,6 @@
 
     var wi2 = ruteZangada.renderWidget("rz-table", "tc2", p2);
 
-    $("#b1").click(function () {
-        var rowsData = [
-            {name: "anabelle",age: 64,gender: "f"},
-            {name: "gabrielle",age: 32,gender: "f"},
-            {name: "isabelle",age: 28,gender: "f"}
-        ];
-        wi2.addRows(rowsData);
-    });
-
     function genderCustomRenderer(value, full) {
         return (value == "m") ?
                 '<span style="color:blue">Masculino</span>' :
@@ -75,6 +68,26 @@
         console.log(value, full);
         return '<span>' + value + ' <i class="heterosexual icon"></i></span>';
     }
+
+    $("#b1").click(function () {
+        var rowsData = [
+            {name: "anabelle",age: 64,gender: "f"},
+            {name: "gabrielle",age: 32,gender: "f"},
+            {name: "isabelle",age: 28,gender: "f"}
+        ];
+        wi2.addRows(rowsData);
+    });
+
+$("#b2").click(function () {
+    var pos = parseInt($("#i1").val());
+    console.log("data:", wi2.getRowData(pos));
+});
+
+    //$("#b2").click(function () {});
+    //$("#b2").click(function () {});
+    //$("#b2").click(function () {});
+    //$("#b2").click(function () {});
+
 
 
 </script>
