@@ -5,11 +5,13 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     var $this = this;
 
     this.initialize = function (params, initialized) {
-        $this.params = params;
-        $this.params.tableClass = params.tableClass || "ui celled table";
-        $this.params.renderTableHead = (params.renderTableHead === undefined) ? true : !!params.renderTableHead;
-        $this.params.elementID = params.id || generateRandomID(8);
         //set params
+        $this.params                    = params;
+        $this.params.tableClass         = params.tableClass || "ui celled table";
+        $this.params.renderTableHead    = (params.renderTableHead === undefined) ? true : !!params.renderTableHead;
+        $this.params.elementID          = params.id || generateRandomID(8);
+        $this.params.addedAfterRowClass = params.addedAfterRowClass || "added-after-row";
+
         initialized($this.params);
     };
 
@@ -65,9 +67,9 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         sb.append('</tbody>');
     };
 
-    var renderDataRows = function (sb, rowData) {
+    var renderDataRows = function (sb, rowData,isAfterAddedRow) {
         rowData.forEach(function (it) {
-            sb.appendFormat('<tr>');
+            sb.appendFormat('<tr{0}>',(isAfterAddedRow)?' class="'+$this.params.addedAfterRowClass+'"':'');
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td>');
                 var renderer = rz.widgets.tableHelpers.getCellRenderer(col.cellRenderer || 'default');
@@ -93,20 +95,40 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
     };
 
-    this.addRows = function (rowData) {
+    var getNewRowHTML = function (rowData) {
         var sb = new StringBuilder();
         if(Object.prototype.toString.call(rowData)!="[object Array]"){
             rowData = [rowData];
         }
-        renderDataRows(sb,rowData);
+        renderDataRows(sb,rowData,true);
+        return sb.toString();
+    };
+    this.getRowCount = function () {
+        return $('#'+ this.params.elementID + ' tbody > tr').length;
+    };
+
+    this.addRows = function (rowData) {
+        var html = getNewRowHTML(rowData);
         $this.params.rowsData = $this.params.rowsData.concat(rowData);
-        $('#'+ this.params.elementID + ' tbody').append(sb.toString());
+        $('#'+ this.params.elementID + ' tbody').append(html);
+    };
+
+    this.insertRows = function (position, rowData) {
+        if(position < 0 || position >= this.getRowCount()){
+            this.addRows(rowData);
+        }
+        else{
+            var html = getNewRowHTML(rowData);
+            $this.params.rowsData.splice.apply($this.params.rowsData, [position, 0].concat(rowData));
+                //$this.params.rowsData.concat(rowData);
+            $('#'+ this.params.elementID + ' tbody > tr').eq(position).before(html);
+        }
+
     };
 
     this.getRowData = function (position) {
         var tprd = $this.params.rowsData;
         return (tprd !== undefined && tprd.length > position) ? $this.params.rowsData[position] : undefined;
     };
-
 
 });
