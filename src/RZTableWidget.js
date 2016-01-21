@@ -8,6 +8,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
         $this.params = params;
         $this.params.tableClass = params.tableClass || "ui celled table";
         $this.params.renderTableHead = (params.renderTableHead === undefined) ? true : !!params.renderTableHead;
+        $this.params.elementID = params.id || generateRandomID(8);
         //set params
         initialized($this.params);
     };
@@ -15,7 +16,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
     this.render = function (target, params) {
         ensureColumns();
         var sb = new StringBuilder();
-        sb.appendFormat('<table class="{0}">', params.tableClass);
+        sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass,params.elementID);
         renderTableHead(sb, params);
         renderTableBody(sb, params);
         sb.append('</table>');
@@ -95,6 +96,15 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", ["getDataRowAt"], [], fu
     this.getDataRowAt = function (position) {
         var tprd = $this.params.rowsData;
         return (tprd !== undefined && tprd.length > position) ? $this.params.rowsData[position] : undefined;
+    };
+
+    this.addRows = function (rowData) {
+        var sb = new StringBuilder();
+        if(Object.prototype.toString.call(rowData)!="[object Array]"){
+            rowData = [rowData];
+        }
+        renderDataRows(sb,rowData);
+        $('#'+ this.params.elementID + ' tbody').append(sb.toString());
     };
 
 

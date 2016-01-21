@@ -7,20 +7,25 @@
     <script src="../lib/semantic/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../lib/semantic/semantic.min.css">
     <script src="../lib/RZClientEngine-0.0.1.min.js"></script>
-    <script src="../dist/RZTableWidget.js"></script></head>
+    <script src="../dist/RZTableWidget.js"></script>
+</head>
 <body>
-    <h1>Setup mínimo com dados estáticos</h1>
-    <div id="tableContainer"></div>
+<h1>Setup mínimo com dados estáticos</h1>
 
-    <h1>Column definitions</h1>
-    <div id="tc2"></div>
+<div id="tableContainer"></div>
+
+<h1>Column definitions</h1>
+
+<div id="tc2"></div>
+<br>
+<button id="b1">addRow</button>
 </body>
 <script>
-    var srdata= [
-        {name:"anderson", age:38,gender:"m"},
-        {name:"maria", age:27,gender:"f"},
-        {name:"isabela", age:32,gender:"f"},
-        {name:"pedro", age:39,gender:"f"}
+    var srdata = [
+        {name: "anderson", age: 38, gender: "m"},
+        {name: "maria", age: 27, gender: "f"},
+        {name: "isabela", age: 32, gender: "f"},
+        {name: "pedro", age: 39, gender: "f"}
     ];
     var params = {};
     params.rowsData = srdata;
@@ -29,30 +34,48 @@
 
     /********************************exemplo 2 ***************************************/
     var p2 = {};
-    p2.tableClass="ui sortable table stripped";
+    p2.tableClass = "ui sortable table stripped";
     p2.rowsData = srdata;
     p2.columns = [
         {
-            headerText:'Nome',
-            bindingSource:'name',
-            cellRenderer:'default',
-            size:10
+            headerText: 'Nome',
+            bindingSource: 'name',
+            cellRenderer: 'default',
+            size: 10
         },
-        { headerText:'Idade', bindingSource:'age',size:3},
-        { headerText:'Gênero', bindingSource:'gender',cellRenderer:genderCustomRenderer,headerRender:headerCustomRenderer,size:3}
+        {headerText: 'Idade', bindingSource: 'age', size: 3},
+        {
+            headerText: 'Gênero',
+            bindingSource: 'gender',
+            cellRenderer: genderCustomRenderer,
+            headerRender: headerCustomRenderer,
+            size: 3
+        },
+        {cellRenderer: 'actions-renderer'}
     ];
 
-    var wi2 = ruteZangada.renderWidget("rz-table", "tc2",p2);
+    var wi2 = ruteZangada.renderWidget("rz-table", "tc2", p2);
 
-    function genderCustomRenderer(value,full){
-        return (value=="m")?
-                '<span style="color:blue">Masculino</span>':
+    $("#b1").click(function () {
+        var rowsData = [
+            {name: "anabelle",age: 64,gender: "f"},
+            {name: "gabrielle",age: 32,gender: "f"},
+            {name: "isabelle",age: 28,gender: "f"}
+        ];
+        wi2.addRows(rowsData);
+    });
+
+    function genderCustomRenderer(value, full) {
+        return (value == "m") ?
+                '<span style="color:blue">Masculino</span>' :
                 '<span style="color:pink">Feminino</span>';
     }
 
-    function headerCustomRenderer(value,full){
-        console.log(value,full);
+    function headerCustomRenderer(value, full) {
+        console.log(value, full);
         return '<span>' + value + ' <i class="heterosexual icon"></i></span>';
     }
+
+
 </script>
 </html>
