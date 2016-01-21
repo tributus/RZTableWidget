@@ -7,7 +7,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     this.initialize = function (params, initialized) {
         //set params
         $this.params                    = params;
-        $this.params.tableClass         = params.tableClass || "ui celled table";
+        $this.params.tableClass         = params.tableClass || "ui basic table";
         $this.params.renderTableHead    = (params.renderTableHead === undefined) ? true : !!params.renderTableHead;
         $this.params.elementID          = params.id || generateRandomID(8);
         $this.params.addedAfterRowClass = params.addedAfterRowClass || "added-after-row";
@@ -49,7 +49,12 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         var classData = "";
         //column size
         if(col.size !==undefined){
-            classData += rz.widgets.tableHelpers.sizeNames[col.size] +  " wide";
+            classData += rz.widgets.tableHelpers.sizeNames[col.size] +  " wide ";
+        }
+        //column alignement
+        var align = col.headerAlignment || col.alignment || "left";
+        if(align !="left"){
+            classData += align + " aligned "
         }
         return (classData !="")? ' class="'+classData+'"':"";
     };
@@ -61,17 +66,26 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                 renderDataRows(sb, params.rowsData)
             }
             else {
-                //getFromServerFirstThenRender();
+                //todo getFromServerFirstThenRender();
             }
         }
         sb.append('</tbody>');
+    };
+
+    var resolveTDClass = function (col) {
+        var classData = "";
+        //column alignement
+        if(col.alignment !==undefined && col.alignment !="left"){
+            classData += col.alignment + " aligned "
+        }
+        return (classData !="")? ' class="'+classData+'"':"";
     };
 
     var renderDataRows = function (sb, rowData,isAfterAddedRow) {
         rowData.forEach(function (it) {
             sb.appendFormat('<tr{0}>',(isAfterAddedRow)?' class="'+$this.params.addedAfterRowClass+'"':'');
             $this.params.columns.forEach(function (col) {
-                sb.appendFormat('<td>');
+                sb.appendFormat('<td{0}>',resolveTDClass(col));
                 var renderer = rz.widgets.tableHelpers.getCellRenderer(col.cellRenderer || 'default');
                 sb.append(renderer(it[col.bindingSource],it));
                 sb.appendFormat('</td>');

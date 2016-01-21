@@ -82,13 +82,15 @@
             cellRenderer: 'default',
             size: 10
         },
-        {headerText: 'Idade', bindingSource: 'age', size: 3},
+        {headerText: "Idade", bindingSource: "age", size: 3, alignment:"right"},
         {
             headerText: 'Gênero',
             bindingSource: 'gender',
             cellRenderer: genderCustomRenderer,
             headerRender: headerCustomRenderer,
-            size: 3
+            size: 3,
+            alignment:'center',
+            headerAlignment:'right'
         },
         {cellRenderer: 'actions-renderer'}
     ];
