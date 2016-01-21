@@ -24,12 +24,12 @@
 
         .added-after-row > td{
             -webkit-animation-name: animation;
-            -webkit-animation-duration: 500ms;
+            -webkit-animation-duration: 600ms;
             -webkit-animation-timing-function: ease-in-out;
             -webkit-animation-play-state: running;
 
             animation-name: animation;
-            animation-duration: 500ms;
+            animation-duration: 600ms;
             animation-timing-function: ease-in-out;
             animation-play-state: running;
             background: none;
@@ -122,13 +122,7 @@ $("#b2").click(function () {
 
     $("#b3").click(function () {
         var pos = parseInt($("#i1").val());
-        var newRow =  [
-            {name: "anabelle",age: 64,gender: "f"},
-            {name: "gabrielle",age: 32,gender: "f"},
-            {name: "isabelle",age: 28,gender: "f"}
-        ];
-
-        // {name: "new inserted row",age: parseInt(Math.random() * 100),gender: "f"};
+        var newRow =  {name: "new inserted row",age: parseInt(Math.random() * 100),gender: "f"};
         wi2.insertRows(pos,newRow);
     });
 
