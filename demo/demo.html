@@ -11,18 +11,30 @@
     <style>
 
         @-webkit-keyframes animation {
-            0%     {background:none;}
-            10.0%  {background:#D1E2F4;}
-            100.0%  {background:none;}
+            0% {
+                background: none;
+            }
+            10.0% {
+                background: #D1E2F4;
+            }
+            100.0% {
+                background: none;
+            }
         }
 
         @keyframes animation {
-            0%     {background:none;}
-            10.0%  {background:#D1E2F4;}
-            100.0%  {background:none;}
+            0% {
+                background: none;
+            }
+            10.0% {
+                background: #D1E2F4;
+            }
+            100.0% {
+                background: none;
+            }
         }
 
-        .added-after-row > td{
+        .added-after-row > td {
             -webkit-animation-name: animation;
             -webkit-animation-duration: 600ms;
             -webkit-animation-timing-function: ease-in-out;
@@ -34,7 +46,6 @@
             animation-play-state: running;
             background: none;
         }
-
 
 
     </style>
@@ -51,6 +62,7 @@
 <input id="i1" value="0">
 <button id="b2">getRowData</button>
 <button id="b3">insertRows</button>
+<button id="b4">clear</button>
 <br><br>
 
 
@@ -75,6 +87,11 @@
     var p2 = {};
     p2.tableClass = "ui sortable table stripped";
     p2.rowsData = srdata;
+    p2.emptyTableMessage = "nenhum item para exibir",
+    p2.emptyMessageRenderer = function (msg) {
+        return '<a href="#">' + msg + '</a>';
+    };
+
     p2.columns = [
         {
             headerText: 'Nome',
@@ -82,15 +99,15 @@
             cellRenderer: 'default',
             size: 10
         },
-        {headerText: "Idade", bindingSource: "age", size: 3, alignment:"right"},
+        {headerText: "Idade", bindingSource: "age", size: 3, alignment: "right"},
         {
             headerText: 'Gênero',
             bindingSource: 'gender',
             cellRenderer: genderCustomRenderer,
             headerRender: headerCustomRenderer,
             size: 3,
-            alignment:'center',
-            headerAlignment:'right'
+            alignment: 'center',
+            headerAlignment: 'right'
         },
         {cellRenderer: 'actions-renderer'}
     ];
@@ -110,28 +127,29 @@
 
     $("#b1").click(function () {
         var rowsData = [
-            {name: "anabelle",age: 64,gender: "f"},
-            {name: "gabrielle",age: 32,gender: "f"},
-            {name: "isabelle",age: 28,gender: "f"}
+            {name: "anabelle", age: 64, gender: "f"},
+            {name: "gabrielle", age: 32, gender: "f"},
+            {name: "isabelle", age: 28, gender: "f"}
         ];
         wi2.addRows(rowsData);
     });
 
-$("#b2").click(function () {
-    var pos = parseInt($("#i1").val());
-    console.log("data:", wi2.getRowData(pos));
-});
+    $("#b2").click(function () {
+        var pos = parseInt($("#i1").val());
+        console.log("data:", wi2.getRowData(pos));
+    });
 
     $("#b3").click(function () {
         var pos = parseInt($("#i1").val());
-        var newRow =  {name: "new inserted row",age: parseInt(Math.random() * 100),gender: "f"};
-        wi2.insertRows(pos,newRow);
+        var newRow = {name: "new inserted row", age: parseInt(Math.random() * 100), gender: "f"};
+        wi2.insertRows(pos, newRow);
     });
 
+    $("#b4").click(function () {
+        wi2.clear();
+    });
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});
-    //$("#b2").click(function () {});
-
 
 
 </script>

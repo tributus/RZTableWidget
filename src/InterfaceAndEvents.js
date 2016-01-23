@@ -44,6 +44,11 @@ rz.widgets.RZTableWidgetHelpers = {
                     type:"int"
                 }
             ]
+        },
+        {
+            name:"clear",
+            friendlyName:"Limpar",
+            description:"Limpa todos os dados da tabela"
         }
     ]
 };
