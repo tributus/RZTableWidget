@@ -29,7 +29,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     var emptyMessageRendererFunction = function (message) {
-        return '<h1>*</h1>'.replace("*",message);
+        return '<h1>*</h1>'.replace("*", message);
     };
 
     var renderTableHead = function (sb, params) {
@@ -88,13 +88,19 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return (classData != "") ? ' class="' + classData + '"' : "";
     };
 
+    var renderCellData = function (rowData, colData,sb) {
+        var renderer = rz.widgets.tableHelpers.getCellRenderer(colData.cellRenderer || 'default');
+        sb.append(renderer(rowData[colData.bindingSource], rowData));
+    };
+
     var renderDataRows = function (sb, rowData, isAfterAddedRow) {
         rowData.forEach(function (it) {
             sb.appendFormat('<tr{0}>', (isAfterAddedRow) ? ' class="' + $this.params.addedAfterRowClass + '"' : '');
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td{0}>', resolveTDClass(col));
-                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.cellRenderer || 'default');
-                sb.append(renderer(it[col.bindingSource], it));
+                renderCellData(it, col,sb);
+                //var renderer = rz.widgets.tableHelpers.getCellRenderer(col.cellRenderer || 'default');
+                //sb.append(renderer(it[col.bindingSource], it));
                 sb.appendFormat('</td>');
             });
             sb.appendFormat('</tr>');
@@ -124,6 +130,25 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         renderDataRows(sb, rowData, true);
         return sb.toString();
     };
+
+    var removeChangeAnimationClass = function () {
+        setTimeout(function () {
+            $('#' + $this.params.elementID + ' tbody > tr').removeClass($this.params.addedAfterRowClass);
+        },500);
+    };
+
+    var getColumnInfo = function (cellName) {
+        var info = {};
+        info.index = $this.params.columns.findIndex(
+            function (element, index, array) {
+                var result = element.bindingSource == cellName;
+                if(result) info.cellData = element;
+                return result;
+            }
+        );
+        return info;
+    };
+
     this.getRowCount = function () {
         return $('#' + this.params.elementID + ' tbody > tr').length;
     };
@@ -132,6 +157,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         var html = getNewRowHTML(rowData);
         $this.params.rowsData = $this.params.rowsData.concat(rowData);
         $('#' + this.params.elementID + ' tbody').append(html);
+        removeChangeAnimationClass();
     };
 
     this.insertRows = function (position, rowData) {
@@ -141,10 +167,9 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         else {
             var html = getNewRowHTML(rowData);
             $this.params.rowsData.splice.apply($this.params.rowsData, [position, 0].concat(rowData));
-            //$this.params.rowsData.concat(rowData);
             $('#' + this.params.elementID + ' tbody > tr').eq(position).before(html);
+            removeChangeAnimationClass();
         }
-
     };
 
     this.getRowData = function (position) {
@@ -157,11 +182,35 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $('#' + this.params.elementID + ' tbody').empty();
         if ($this.params.displayEmptyMessage) {
             $('#' + this.params.elementID + ' tbody').append('<tr class="empty-row"><td colspan="*">*</td></tr>'
-                .replace("*", ccount.toString())
-                .replace("*",$this.params.emptyMessageRenderer($this.params.emptyTableMessage))
+                    .replace("*", ccount.toString())
+                    .replace("*", $this.params.emptyMessageRenderer($this.params.emptyTableMessage))
             );
         }
         $this.params.rowsData = [];
+    };
+
+    this.changeCellData = function (position, cellName, newValue) {
+        if (position >= 0 && position < this.getRowCount()) {
+            $this.params.rowsData[position][cellName] = newValue;
+            var cInfo = getColumnInfo(cellName);
+            if(cInfo.index != -1){
+                var row = $('#' + this.params.elementID + ' tbody > tr')[position];
+                var sb = new StringBuilder();
+                renderCellData($this.params.rowsData[position], cInfo.cellData,sb);
+                $($(row).children("td")[cInfo.index]).html(sb.toString());
+                var tTd = $($(row).children("td")[cInfo.index]);
+                tTd.addClass("changed-cell-1");
+               setTimeout(function () {
+                    tTd.removeClass("changed-cell-1");
+                },500);
+            }
+            else{
+                throw "INVALID CELL";
+            }
+        }
+        else {
+            throw "INVALID POSITION";
+        }
     }
 
 });

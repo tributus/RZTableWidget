@@ -49,6 +49,31 @@ rz.widgets.RZTableWidgetHelpers = {
             name:"clear",
             friendlyName:"Limpar",
             description:"Limpa todos os dados da tabela"
+        },
+        {
+            name:"changeCellData",
+            friendlyName:"Alterar dados de célula",
+            description:"Altera os dados de uma célula e renderiza-a",
+            params:[
+                {
+                    name:"position",
+                    friendlyName:"Linha",
+                    description:"Posição da linha da qual se quer alterar os dados",
+                    type:"int"
+                },
+                {
+                    name:"cellName",
+                    friendlyName:"Nome da célula",
+                    description:"nome da propriedade que será alterada",
+                    type:"string"
+                },
+                {
+                    name:"newValue",
+                    friendlyName:"Valor",
+                    description:"Novo valor da célula",
+                    type:"any"
+                }
+            ]
         }
     ]
 };
