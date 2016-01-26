@@ -19,6 +19,29 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     this.render = function (target, params) {
+        if(typeof(params.rowsData)=="string"){
+            getServerData(target,params);
+        }
+        else{
+            renderRowsData(target,params);
+        }
+    };
+
+    var getServerData = function (target,params) {
+        ruteZangada.get(params.rowsData, function (d, r) {
+            if(r=="success"){
+                var url = params.rowsData;
+                params.rowsData = d;
+                params.rowsData["sourceURL"] = url;
+                renderRowsData(target,params);
+            }
+            //http://localhost:3000/api/people
+            //console.log("d:", d, "r: " ,r);
+            //then renderRowsData(target,params);
+        });
+    };
+
+    var renderRowsData = function (target,params) {
         ensureColumns();
         var sb = new StringBuilder();
         sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass, params.elementID);
@@ -68,15 +91,26 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
 
     var renderTableBody = function (sb, params) {
         sb.append('<tbody>');
-        if (params.rowsData !== undefined) {
-            if (typeof(params.rowsData) == "object") {
-                renderDataRows(sb, params.rowsData)
-            }
-            else {
-                //todo getFromServerFirstThenRender();
+        if(params.rowsData !==undefined && params.rowsData.length > 0){
+            renderDataRows(sb, params.rowsData);
+        }
+        else{
+            if ($this.params.displayEmptyMessage) {
+                renderEmptyDataRow(sb);
             }
         }
+
         sb.append('</tbody>');
+    };
+
+    var renderEmptyDataRow = function (sb) {
+        var ccount = $this.params.columns.length;
+        sb.appendFormat('<tr class="empty-row"><td colspan="{0}">{1}</td></tr>',ccount.toString(),
+            $this.params.emptyMessageRenderer($this.params.emptyTableMessage));
+    };
+
+    var removeEmptyDataRow = function () {
+        $('#' + $this.params.elementID + ' .empty-row').detach();
     };
 
     var resolveTDClass = function (col) {
@@ -99,8 +133,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td{0}>', resolveTDClass(col));
                 renderCellData(it, col,sb);
-                //var renderer = rz.widgets.tableHelpers.getCellRenderer(col.cellRenderer || 'default');
-                //sb.append(renderer(it[col.bindingSource], it));
                 sb.appendFormat('</td>');
             });
             sb.appendFormat('</tr>');
@@ -157,6 +189,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         var html = getNewRowHTML(rowData);
         $this.params.rowsData = $this.params.rowsData.concat(rowData);
         $('#' + this.params.elementID + ' tbody').append(html);
+        removeEmptyDataRow();
         removeChangeAnimationClass();
     };
 
@@ -168,6 +201,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             var html = getNewRowHTML(rowData);
             $this.params.rowsData.splice.apply($this.params.rowsData, [position, 0].concat(rowData));
             $('#' + this.params.elementID + ' tbody > tr').eq(position).before(html);
+            removeEmptyDataRow();
             removeChangeAnimationClass();
         }
     };
@@ -178,13 +212,11 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     this.clear = function () {
-        var ccount = $this.params.columns.length;
         $('#' + this.params.elementID + ' tbody').empty();
         if ($this.params.displayEmptyMessage) {
-            $('#' + this.params.elementID + ' tbody').append('<tr class="empty-row"><td colspan="*">*</td></tr>'
-                    .replace("*", ccount.toString())
-                    .replace("*", $this.params.emptyMessageRenderer($this.params.emptyTableMessage))
-            );
+            var sb = new StringBuilder();
+            renderEmptyDataRow(sb);
+            $('#' + this.params.elementID + ' tbody').append(sb.toString());
         }
         $this.params.rowsData = [];
     };

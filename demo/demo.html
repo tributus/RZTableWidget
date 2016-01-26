@@ -36,8 +36,7 @@
 
         .added-after-row > td,
         .changed-cell-1,
-        .changed-cell-2
-        {
+        .changed-cell-2 {
             -webkit-animation-name: animation;
             -webkit-animation-duration: 600ms;
             -webkit-animation-timing-function: ease-in-out;
@@ -64,6 +63,7 @@
 
 <input id="i1" value="0">
 <button id="b2">getRowData</button>
+<button id="b1">addRow</button>
 <button id="b3">insertRows</button>
 <button id="b4">clear</button>
 <button id="b5">change</button>
@@ -71,8 +71,13 @@
 
 
 <div id="tc2"></div>
-<br>
-<button id="b1">addRow</button>
+
+<br><br><br><br>
+<hr>
+<h1>Get data from server</h1>
+
+<div id="tc3"></div>
+
 
 </body>
 <script>
@@ -91,7 +96,7 @@
     var p2 = {};
     p2.tableClass = "ui sortable table stripped";
     p2.rowsData = srdata;
-    p2.emptyTableMessage = "nenhum item para exibir",
+    p2.emptyTableMessage = "nenhum item para exibir";
     p2.emptyMessageRenderer = function (msg) {
         return '<span style="color:lightgray">' + msg + '</span>';
     };
@@ -154,10 +159,45 @@
     });
     var i = 0;
     $("#b5").click(function () {
-        var s = ['m','f'];
-        i = 1-i;
-        wi2.changeCellData(0,"gender",s[1-i]);
+        var s = ['m', 'f'];
+        i = 1 - i;
+        wi2.changeCellData(0, "gender", s[1 - i]);
     });
+
+
+    /********************************exemplo 3 ***************************************/
+
+    var p3 = {};
+    p3.tableClass = "ui sortable celled table";
+    p3.rowsData = "http://localhost:3000/api/people";
+    p3.emptyTableMessage = "nenhum item para exibir";
+    p3.emptyMessageRenderer = function (msg) {
+        return '<span style="color:lightgray">' + msg + '</span>';
+    };
+
+    p3.columns = [
+        {
+            headerText: 'Nome',
+            bindingSource: 'name',
+            cellRenderer: 'default',
+            size: 10
+        },
+        {headerText: "Idade", bindingSource: "age", size: 3, alignment: "right"},
+        {
+            headerText: 'Gênero',
+            bindingSource: 'gender',
+            cellRenderer: genderCustomRenderer,
+            headerRender: headerCustomRenderer,
+            size: 3,
+            alignment: 'center',
+            headerAlignment: 'right'
+        },
+        {cellRenderer: 'actions-renderer'}
+    ];
+
+    var wi3 = ruteZangada.renderWidget("rz-table", "tc3", p3);
+
+
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});
