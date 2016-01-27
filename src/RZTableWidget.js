@@ -14,6 +14,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.params.displayEmptyMessage = (params.displayEmptyMessage === undefined) ? true : !!params.displayEmptyMessage;
         $this.params.emptyTableMessage = params.emptyTableMessage || "empty";
         $this.params.emptyMessageRenderer = params.emptyMessageRenderer || emptyMessageRendererFunction;
+        $this.params.errorMessageRenderer = params.errorMessageRenderer || errorMessageRendererFunction;
 
         initialized($this.params);
     };
@@ -28,38 +29,59 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     var getServerData = function (target,params) {
+        var hasColumnDefinitions = params.columns !==undefined;
+        if(hasColumnDefinitions){
+            var sb = new StringBuilder();
+            sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass, params.elementID);
+            renderTableHead(sb,params);
+            sb.appendFormat('</table>');
+            $("#" + target).append(sb.toString());
+        }
         ruteZangada.get(params.rowsData, function (d, r) {
             if(r=="success"){
                 var url = params.rowsData;
                 params.rowsData = d;
                 params.rowsData["sourceURL"] = url;
-                renderRowsData(target,params);
+                renderRowsData(target,params,hasColumnDefinitions);
+                //todo wait and display progress
             }
-            //http://localhost:3000/api/people
-            //console.log("d:", d, "r: " ,r);
-            //then renderRowsData(target,params);
+            else{
+                $("#"+params.elementID).append(params.errorMessageRenderer());
+            }
         });
     };
 
-    var renderRowsData = function (target,params) {
-        ensureColumns();
+    var renderRowsData = function (target,params,onlyRows) {
         var sb = new StringBuilder();
-        sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass, params.elementID);
-        renderTableHead(sb, params);
-        renderTableBody(sb, params);
-        sb.append('</table>');
-        $("#" + target).append(sb.toString());
+
+        if(!onlyRows){
+            ensureColumns();
+            sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass, params.elementID);
+            renderTableHead(sb, params);
+            renderTableBody(sb, params);
+            sb.append('</table>');
+            $("#" + target).append(sb.toString());
+        }
+        else{
+            renderTableBody(sb, params);
+            $("#" + params.elementID + " tbody").detach();
+            $("#" + params.elementID).append(sb.toString());
+        }
+
     };
 
     var emptyMessageRendererFunction = function (message) {
         return '<h1>*</h1>'.replace("*", message);
     };
 
+    var errorMessageRendererFunction = function () {
+        return '<tbody><tr><td class="error-message">error getting server data</td></tr></tbody>';
+    };
+
     var renderTableHead = function (sb, params) {
         if (params.renderTableHead) {
             sb.append('<thead>');
             sb.append('<tr>');
-
             params.columns.forEach(function (col) {
                 sb.appendFormat('<th{0}>', resolveHeaderClass(col));
                 var renderer = rz.widgets.tableHelpers.getCellRenderer(col.headerRender || 'default');
@@ -68,10 +90,8 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                 sb.append('</th>');
 
             });
-
             sb.append('</tr>');
             sb.append('</thead>');
-
         }
     };
 
