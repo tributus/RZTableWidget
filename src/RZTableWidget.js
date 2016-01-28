@@ -68,7 +68,22 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             $("#" + params.elementID).append(sb.toString());
         }
 
+        //todo implementar em ruteZangada após a renderização do widget (widgetRendered_event
+        var executeAfterRenderScripts = function () {
+            postRenderScripts.forEach(function (it) {
+                it();
+            });
+        };
+
+        executeAfterRenderScripts();
     };
+
+    //todo Levar estes métodos para o ruteZangada
+    var postRenderScripts = [];
+    this.registerAfterRenderScript = function (f) {
+        postRenderScripts.push(f);
+    };
+
 
     var emptyMessageRendererFunction = function (message) {
         return '<h1>*</h1>'.replace("*", message);
@@ -144,7 +159,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
 
     var renderCellData = function (rowData, colData,sb) {
         var renderer = rz.widgets.tableHelpers.getCellRenderer(colData.cellRenderer || 'default');
-        sb.append(renderer(rowData[colData.bindingSource], rowData));
+        sb.append(renderer(rowData[colData.bindingSource], rowData,colData,$this));
     };
 
     var renderDataRows = function (sb, rowData, isAfterAddedRow) {
@@ -264,5 +279,4 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             throw "INVALID POSITION";
         }
     }
-
 });

@@ -2,36 +2,39 @@
  * Created by Anderson on 27/01/2016.
  */
 
-rz.widgets.tableHelpers.createCellRenderer("actions-renderer", function (value) {
+rz.widgets.tableHelpers.createCellRenderer("actions-renderer", function (value, full, columnDef,targetInstance) {
+
+    //var ref = {
+    //    cellRenderer: "actions-renderer",
+    //    actions: [
+    //        {action: "action1", label: "Action 1"},
+    //        {action: "action2", label: "Action 2"},
+    //        {action: "action3", label: "Action 3"}
+    //    ],
+    //    clickHandler: function (action, rowData, rowIndex) {
+    //
+    //    }
+    //};
+
     var sb = new StringBuilder();
-    sb.append('<div class="ui icon top right basic pointing dropdown button">');
+    sb.append('<div class="ui icon top right basic pointing dropdown button table-actions-button">');
     sb.append('  <i class="ellipsis vertical icon"></i>');
     sb.append('  <div class="menu">');
-    sb.append('    <div class="header">Display Density</div>');
-    sb.append('    <div class="item">Comfortable</div>');
-    sb.append('    <div class="item">Cozy</div>');
-    sb.append('    <div class="item">Compact</div>');
-    sb.append('    <div class="ui divider"></div>');
-    sb.append('    <div class="item">Settings</div>');
-    sb.append('    <div class="item">');
-    sb.append('      <i class="dropdown icon"></i>');
-    sb.append('      <span class="text">Upload Settings</span>');
-    sb.append('      <div class="menu">');
-    sb.append('        <div class="item">');
-    sb.append('          <i class="check icon"></i>');
-    sb.append('          Convert Uploaded Files to PDF');
-    sb.append('        </div>');
-    sb.append('        <div class="item">');
-    sb.append('          <i class="check icon"></i>');
-    sb.append('          Digitize Text from Uploaded Files');
-    sb.append('        </div>');
-    sb.append('      </div>');
-    sb.append('    </div>');
-    sb.append('    <div class="item">Manage Apps</div>');
-    sb.append('    <div class="item">Keyboard Shortcuts</div>');
-    sb.append('    <div class="item">Help</div>');
+    //sb.append('    <div class="header">Ações</div>');
+    columnDef.actions.forEach(function (it) {
+        sb.appendFormat('    <div class="item" data-action="{1}">{0}</div>',it.label,it.action);
+    });
+
     sb.append('  </div>');
     sb.append('</div>');
+
+    targetInstance.registerAfterRenderScript(function () {
+        var selector1 = '#' + targetInstance.params.elementID + ' .ui.dropdown';
+        var selector2 = '#' + targetInstance.params.elementID + ' .ui.dropdown .menu .item';
+        $(selector1).dropdown();
+        $(selector2).click(function(){alert("clicou")})
+    });
+
     return sb.toString();
 
 });

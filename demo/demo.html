@@ -117,8 +117,8 @@
             size: 3,
             alignment: 'center',
             headerAlignment: 'right'
-        },
-        {cellRenderer: 'actions-renderer'}
+        }
+        //,{cellRenderer: 'actions-renderer'}
     ];
 
     var wi2 = ruteZangada.renderWidget("rz-table", "tc2", p2);
@@ -182,7 +182,12 @@
             cellRenderer: 'default',
             size: 10
         },
-        {headerText: "Idade", bindingSource: "age", size: 3, alignment: "right"},
+        {
+            headerText: "Idade",
+            bindingSource: "age",
+            size: 3,
+            alignment: "right"
+        },
         {
             headerText: 'Gênero',
             bindingSource: 'gender',
