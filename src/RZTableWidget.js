@@ -51,6 +51,16 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         });
     };
 
+    //todo implementar em ruteZangada após a renderização do widget (widgetRendered_event
+    var executeAfterRenderScripts = function () {
+        postRenderScripts.forEach(function (it) {
+            it();
+        });
+        postRenderScripts = [];
+    };
+
+
+
     var renderRowsData = function (target,params,onlyRows) {
         var sb = new StringBuilder();
 
@@ -61,21 +71,14 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             renderTableBody(sb, params);
             sb.append('</table>');
             $("#" + target).append(sb.toString());
+            executeAfterRenderScripts();
         }
         else{
             renderTableBody(sb, params);
             $("#" + params.elementID + " tbody").detach();
             $("#" + params.elementID).append(sb.toString());
+            executeAfterRenderScripts();
         }
-
-        //todo implementar em ruteZangada após a renderização do widget (widgetRendered_event
-        var executeAfterRenderScripts = function () {
-            postRenderScripts.forEach(function (it) {
-                it();
-            });
-        };
-
-        executeAfterRenderScripts();
     };
 
     //todo Levar estes métodos para o ruteZangada
@@ -157,17 +160,18 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return (classData != "") ? ' class="' + classData + '"' : "";
     };
 
-    var renderCellData = function (rowData, colData,sb) {
+    var renderCellData = function (rowData, colData,sb,rowIndex) {
         var renderer = rz.widgets.tableHelpers.getCellRenderer(colData.cellRenderer || 'default');
-        sb.append(renderer(rowData[colData.bindingSource], rowData,colData,$this));
+        sb.append(renderer(rowData[colData.bindingSource], rowData,colData,$this,rowIndex));
     };
 
     var renderDataRows = function (sb, rowData, isAfterAddedRow) {
-        rowData.forEach(function (it) {
+        rowData.forEach(function (it,rowIndex) {
+            it.__uid = generateRandomID(16);
             sb.appendFormat('<tr{0}>', (isAfterAddedRow) ? ' class="' + $this.params.addedAfterRowClass + '"' : '');
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td{0}>', resolveTDClass(col));
-                renderCellData(it, col,sb);
+                renderCellData(it, col,sb,rowIndex);
                 sb.appendFormat('</td>');
             });
             sb.appendFormat('</tr>');
@@ -224,6 +228,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         var html = getNewRowHTML(rowData);
         $this.params.rowsData = $this.params.rowsData.concat(rowData);
         $('#' + this.params.elementID + ' tbody').append(html);
+        executeAfterRenderScripts();
         removeEmptyDataRow();
         removeChangeAnimationClass();
     };
@@ -236,6 +241,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             var html = getNewRowHTML(rowData);
             $this.params.rowsData.splice.apply($this.params.rowsData, [position, 0].concat(rowData));
             $('#' + this.params.elementID + ' tbody > tr').eq(position).before(html);
+            executeAfterRenderScripts();
             removeEmptyDataRow();
             removeChangeAnimationClass();
         }
