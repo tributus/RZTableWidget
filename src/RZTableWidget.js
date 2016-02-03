@@ -20,33 +20,33 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     this.render = function (target, params) {
-        if(typeof(params.rowsData)=="string"){
-            getServerData(target,params);
+        if (typeof(params.rowsData) == "string") {
+            getServerData(target, params);
         }
-        else{
-            renderRowsData(target,params);
+        else {
+            renderRowsData(target, params);
         }
     };
 
-    var getServerData = function (target,params) {
-        var hasColumnDefinitions = params.columns !==undefined;
-        if(hasColumnDefinitions){
+    var getServerData = function (target, params) {
+        var hasColumnDefinitions = params.columns !== undefined;
+        if (hasColumnDefinitions) {
             var sb = new StringBuilder();
             sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass, params.elementID);
-            renderTableHead(sb,params);
+            renderTableHead(sb, params);
             sb.appendFormat('</table>');
             $("#" + target).append(sb.toString());
         }
         ruteZangada.get(params.rowsData, function (d, r) {
-            if(r=="success"){
+            if (r == "success") {
                 var url = params.rowsData;
                 params.rowsData = d;
                 params.rowsData["sourceURL"] = url;
-                renderRowsData(target,params,hasColumnDefinitions);
+                renderRowsData(target, params, hasColumnDefinitions);
                 //todo wait and display progress
             }
-            else{
-                $("#"+params.elementID).append(params.errorMessageRenderer());
+            else {
+                $("#" + params.elementID).append(params.errorMessageRenderer());
             }
         });
     };
@@ -57,14 +57,28 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             it();
         });
         postRenderScripts = [];
+        setupSortableTable();
     };
 
+    var setupSortableTable = function () {
+        var isSortable = $("#" + $this.params.elementID).hasClass("sortable");
+        if(isSortable){
+            $("#" + $this.params.elementID + " th").click(function (e) {
+                var el = $(e.currentTarget);
+                if(!el.hasClass("unsortable")){
+                    var isAscending = el.hasClass("sorted ascending");
+                    $("#" + $this.params.elementID + " th").removeClass("sorted ascending descending");
+                    var cssClass = (isAscending) ? "sorted descending": "sorted ascending";
+                    el.addClass(cssClass);
+                }
+            });
+        }
+    };
 
-
-    var renderRowsData = function (target,params,onlyRows) {
+    var renderRowsData = function (target, params, onlyRows) {
         var sb = new StringBuilder();
 
-        if(!onlyRows){
+        if (!onlyRows) {
             ensureColumns();
             sb.appendFormat('<table id="{1}" class="{0}">', params.tableClass, params.elementID);
             renderTableHead(sb, params);
@@ -73,7 +87,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             $("#" + target).append(sb.toString());
             executeAfterRenderScripts();
         }
-        else{
+        else {
             renderTableBody(sb, params);
             $("#" + params.elementID + " tbody").detach();
             $("#" + params.elementID).append(sb.toString());
@@ -124,15 +138,19 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         if (align != "left") {
             classData += align + " aligned "
         }
+        if(col.sortable===undefined) col.sortable=true;
+        if(!col.sortable){
+            classData += " unsortable ";
+        }
         return (classData != "") ? ' class="' + classData + '"' : "";
     };
 
     var renderTableBody = function (sb, params) {
         sb.append('<tbody>');
-        if(params.rowsData !==undefined && params.rowsData.length > 0){
+        if (params.rowsData !== undefined && params.rowsData.length > 0) {
             renderDataRows(sb, params.rowsData);
         }
-        else{
+        else {
             if ($this.params.displayEmptyMessage) {
                 renderEmptyDataRow(sb);
             }
@@ -143,7 +161,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
 
     var renderEmptyDataRow = function (sb) {
         var ccount = $this.params.columns.length;
-        sb.appendFormat('<tr class="empty-row"><td colspan="{0}">{1}</td></tr>',ccount.toString(),
+        sb.appendFormat('<tr class="empty-row"><td colspan="{0}">{1}</td></tr>', ccount.toString(),
             $this.params.emptyMessageRenderer($this.params.emptyTableMessage));
     };
 
@@ -160,18 +178,18 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return (classData != "") ? ' class="' + classData + '"' : "";
     };
 
-    var renderCellData = function (rowData, colData,sb,rowIndex) {
+    var renderCellData = function (rowData, colData, sb, rowIndex) {
         var renderer = rz.widgets.tableHelpers.getCellRenderer(colData.cellRenderer || 'default');
-        sb.append(renderer(rowData[colData.bindingSource], rowData,colData,$this,rowIndex));
+        sb.append(renderer(rowData[colData.bindingSource], rowData, colData, $this, rowIndex));
     };
 
     var renderDataRows = function (sb, rowData, isAfterAddedRow) {
-        rowData.forEach(function (it,rowIndex) {
+        rowData.forEach(function (it, rowIndex) {
             it.__uid = generateRandomID(16);
             sb.appendFormat('<tr{0}>', (isAfterAddedRow) ? ' class="' + $this.params.addedAfterRowClass + '"' : '');
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td{0}>', resolveTDClass(col));
-                renderCellData(it, col,sb,rowIndex);
+                renderCellData(it, col, sb, rowIndex);
                 sb.appendFormat('</td>');
             });
             sb.appendFormat('</tr>');
@@ -205,7 +223,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     var removeChangeAnimationClass = function () {
         setTimeout(function () {
             $('#' + $this.params.elementID + ' tbody > tr').removeClass($this.params.addedAfterRowClass);
-        },500);
+        }, 500);
     };
 
     var getColumnInfo = function (cellName) {
@@ -213,7 +231,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         info.index = $this.params.columns.findIndex(
             function (element, index, array) {
                 var result = element.bindingSource == cellName;
-                if(result) info.cellData = element;
+                if (result) info.cellData = element;
                 return result;
             }
         );
@@ -266,18 +284,18 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         if (position >= 0 && position < this.getRowCount()) {
             $this.params.rowsData[position][cellName] = newValue;
             var cInfo = getColumnInfo(cellName);
-            if(cInfo.index != -1){
+            if (cInfo.index != -1) {
                 var row = $('#' + this.params.elementID + ' tbody > tr')[position];
                 var sb = new StringBuilder();
-                renderCellData($this.params.rowsData[position], cInfo.cellData,sb);
+                renderCellData($this.params.rowsData[position], cInfo.cellData, sb);
                 $($(row).children("td")[cInfo.index]).html(sb.toString());
                 var tTd = $($(row).children("td")[cInfo.index]);
                 tTd.addClass("changed-cell-1");
-               setTimeout(function () {
+                setTimeout(function () {
                     tTd.removeClass("changed-cell-1");
-                },500);
+                }, 500);
             }
-            else{
+            else {
                 throw "INVALID CELL";
             }
         }
