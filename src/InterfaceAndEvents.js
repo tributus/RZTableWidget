@@ -74,6 +74,19 @@ rz.widgets.RZTableWidgetHelpers = {
                     type:"any"
                 }
             ]
+        },
+        {
+            name: "sort",
+            friendlyName:"Ordenar",
+            description:"Ordena os dados da tabela",
+            params:[
+                {
+                    name:"sortParams",
+                    friendlyName:"Opções de ordenação",
+                    description:"Parâmetros utilizados na ordenação da tabela",
+                    type:"object"
+                }
+            ]
         }
     ]
 };

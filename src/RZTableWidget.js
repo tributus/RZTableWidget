@@ -65,11 +65,19 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         if(isSortable){
             $("#" + $this.params.elementID + " th").click(function (e) {
                 var el = $(e.currentTarget);
+                var bs = el.data("bindingsource");
                 if(!el.hasClass("unsortable")){
                     var isAscending = el.hasClass("sorted ascending");
                     $("#" + $this.params.elementID + " th").removeClass("sorted ascending descending");
                     var cssClass = (isAscending) ? "sorted descending": "sorted ascending";
                     el.addClass(cssClass);
+                    if(bs!=""){
+                        var sortData = {
+                            column:bs,
+                            sortDir: (isAscending) ? "desc": "asc"
+                        };
+                        $this.sort(sortData);
+                    }
                 }
             });
         }
@@ -115,7 +123,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             sb.append('<thead>');
             sb.append('<tr>');
             params.columns.forEach(function (col) {
-                sb.appendFormat('<th{0}>', resolveHeaderClass(col));
+                sb.appendFormat('<th{0} data-bindingsource="{1}">', resolveHeaderClass(col),col.bindingSource || "");
                 var renderer = rz.widgets.tableHelpers.getCellRenderer(col.headerRender || 'default');
                 var value = col.headerText || col.bindingSource;
                 sb.append(renderer(value, col));
@@ -278,6 +286,24 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             $('#' + this.params.elementID + ' tbody').append(sb.toString());
         }
         $this.params.rowsData = [];
+    };
+
+    this.sort = function (sortData) {
+        var colData = $this.params.columns[sortData.column];
+        //if sort local:
+        if(colData.sortMethod!==undefined){
+            //antes de invocar o sort eu preciso passar a direção
+            $this.params.rowsData.sort(colData.sortMethod);
+        }
+        else{
+
+        }
+
+
+        //if colData has a sortFunction then useit
+        //else if colData has a columnType sort Using
+        //else sort as string
+
     };
 
     this.changeCellData = function (position, cellName, newValue) {

@@ -116,7 +116,10 @@
             headerRender: headerCustomRenderer,
             size: 3,
             alignment: 'center',
-            headerAlignment: 'right'
+            headerAlignment: 'right',
+            sortMethod: function (a, b) {
+                throw "SORT METODO NÃO IMPLEMENTADO YET"
+            }
         }
         //,{cellRenderer: 'actions-renderer'}
     ];
