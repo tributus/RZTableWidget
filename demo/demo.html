@@ -85,7 +85,10 @@
         {name: "anderson", age: 38, gender: "m"},
         {name: "maria", age: 27, gender: "f"},
         {name: "isabela", age: 32, gender: "f"},
-        {name: "pedro", age: 39, gender: "f"}
+        {name: "Lara", age: 9, gender: "f"},
+        {name: "pedro", age: 39, gender: "m"},
+        {name: "Zanna", age: 98, gender: "f"},
+        {name: "Eduardo", age: 8, gender: "f"}
     ];
     var params = {};
     params.rowsData = srdata;
@@ -108,7 +111,7 @@
             cellRenderer: 'default',
             size: 10
         },
-        {headerText: "Idade", bindingSource: "age", size: 3, alignment: "right"},
+        {headerText: "Idade", bindingSource: "age", size: 3, alignment: "right", dataType:"numeric"},
         {
             headerText: 'Gênero',
             bindingSource: 'gender',
@@ -117,12 +120,22 @@
             size: 3,
             alignment: 'center',
             headerAlignment: 'right',
-            sortMethod: function (a, b) {
-                throw "SORT METODO NÃO IMPLEMENTADO YET"
+            sortAscMethod: function (a, b) {
+                return sortGender(a,b);
+            },
+            sortDescMethod: function(a,b){
+                return sortGender(b,a);
             }
         }
         //,{cellRenderer: 'actions-renderer'}
     ];
+
+    var sortGender = function (a, b) {
+        var r = 0;
+        if(a.gender < b.gender) r = -1;
+        if(a.gender > b.gender) r = 1;
+        return r;
+    };
 
     var wi2 = ruteZangada.renderWidget("rz-table", "tc2", p2);
 
@@ -189,7 +202,8 @@
             headerText: "Idade",
             bindingSource: "age",
             size: 3,
-            alignment: "right"
+            alignment: "right",
+            dataType:"numeric"
         },
         {
             headerText: 'Gênero',
@@ -201,15 +215,15 @@
             headerAlignment: 'right'
         },
         {
-            sortable:false,
+            sortable: false,
             cellRenderer: "actions-renderer",
-            actions:[
-                {action:"action1", label:"Action 1"},
-                {action:"action2", label:"Action 2"},
-                {action:"action3", label:"Action 3"}
+            actions: [
+                {action: "action1", label: "Action 1"},
+                {action: "action2", label: "Action 2"},
+                {action: "action3", label: "Action 3"}
             ],
-            clickHandler : function(action, rowData,rowIndex) {
-                console.log(action,"for", rowData, "at", rowIndex, "row");
+            clickHandler: function (action, rowData, rowIndex) {
+                console.log(action, "for", rowData, "at", rowIndex, "row");
             }
         }
     ];

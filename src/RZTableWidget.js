@@ -21,9 +21,11 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
 
     this.render = function (target, params) {
         if (typeof(params.rowsData) == "string") {
+            $this.dataSourceLocation = "server";
             getServerData(target, params);
         }
         else {
+            $this.dataSourceLocation = "local";
             renderRowsData(target, params);
         }
     };
@@ -41,7 +43,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             if (r == "success") {
                 var url = params.rowsData;
                 params.rowsData = d;
-                params.rowsData["sourceURL"] = url;
+                params.sourceURL = url;
                 renderRowsData(target, params, hasColumnDefinitions);
                 //todo wait and display progress
             }
@@ -52,12 +54,14 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     //todo implementar em ruteZangada após a renderização do widget (widgetRendered_event
-    var executeAfterRenderScripts = function () {
+    var executeAfterRenderScripts = function (bypassSetupHeaders) {
         postRenderScripts.forEach(function (it) {
             it();
         });
         postRenderScripts = [];
-        setupSortableTable();
+        if(!bypassSetupHeaders){
+            setupSortableTable();
+        }
     };
 
     var setupSortableTable = function () {
@@ -191,10 +195,10 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         sb.append(renderer(rowData[colData.bindingSource], rowData, colData, $this, rowIndex));
     };
 
-    var renderDataRows = function (sb, rowData, isAfterAddedRow) {
+    var renderDataRows = function (sb, rowData, isPostAddedRow) {
         rowData.forEach(function (it, rowIndex) {
             it.__uid = generateRandomID(16);
-            sb.appendFormat('<tr{0}>', (isAfterAddedRow) ? ' class="' + $this.params.addedAfterRowClass + '"' : '');
+            sb.appendFormat('<tr{0}>', (isPostAddedRow) ? ' class="' + $this.params.addedAfterRowClass + '"' : '');
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td{0}>', resolveTDClass(col));
                 renderCellData(it, col, sb, rowIndex);
@@ -219,12 +223,12 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
     };
 
-    var getNewRowHTML = function (rowData) {
+    var getNewRowHTML = function (rowData,isRefresh) {
         var sb = new StringBuilder();
         if (Object.prototype.toString.call(rowData) != "[object Array]") {
             rowData = [rowData];
         }
-        renderDataRows(sb, rowData, true);
+        renderDataRows(sb, rowData, !isRefresh);
         return sb.toString();
     };
 
@@ -254,7 +258,15 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         var html = getNewRowHTML(rowData);
         $this.params.rowsData = $this.params.rowsData.concat(rowData);
         $('#' + this.params.elementID + ' tbody').append(html);
-        executeAfterRenderScripts();
+        executeAfterRenderScripts(true);
+        removeEmptyDataRow();
+        removeChangeAnimationClass();
+    };
+
+    this.refresh = function(){
+        var html = getNewRowHTML($this.params.rowsData,true);
+        $('#' + this.params.elementID + ' tbody').append(html);
+        executeAfterRenderScripts(true);
         removeEmptyDataRow();
         removeChangeAnimationClass();
     };
@@ -267,7 +279,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             var html = getNewRowHTML(rowData);
             $this.params.rowsData.splice.apply($this.params.rowsData, [position, 0].concat(rowData));
             $('#' + this.params.elementID + ' tbody > tr').eq(position).before(html);
-            executeAfterRenderScripts();
+            executeAfterRenderScripts(true);
             removeEmptyDataRow();
             removeChangeAnimationClass();
         }
@@ -288,21 +300,90 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.params.rowsData = [];
     };
 
+    var findColData = function(findData){
+
+        var cdata = $this.params.columns.find(function(it){
+            return it[findData.prop] == findData.value;
+        });
+        return cdata;
+    };
+
+    var sortAscMethod = function (a, b) {
+        return genericSortMethod(a,b);
+    };
+
+    var sortDescMethod = function (a, b) {
+        return genericSortMethod(b,a);
+    };
+    var columnToSort;
+    var genericSortMethod = function (a, b) {
+        var r = 0;
+        var colDef = findColData({prop:"bindingSource", value:columnToSort});
+        var va = a[columnToSort];
+        var vb = b[columnToSort];
+
+        if(colDef.dataType=="numeric"){
+            va = parseFloat(va);
+            vb = parseFloat(vb);
+        }
+        else if(colDef.dataType=="datetime"){
+            va = new Date(va);
+            vb = new Date(vb);
+        }
+
+        if(va < vb) r = -1;
+        if(va > vb) r = 1;
+        return r;
+    };
+
     this.sort = function (sortData) {
-        var colData = $this.params.columns[sortData.column];
-        //if sort local:
-        if(colData.sortMethod!==undefined){
-            //antes de invocar o sort eu preciso passar a direção
-            $this.params.rowsData.sort(colData.sortMethod);
+        var colData = findColData({prop:"bindingSource", value:sortData.column});
+        if($this.dataSourceLocation == "local"){
+
+            if(sortData.sortDir=="asc"){
+                if(colData.sortAscMethod!==undefined){
+                    $this.params.rowsData.sort(colData.sortAscMethod);
+                }
+                else{
+                    columnToSort = sortData.column;
+                    $this.params.rowsData.sort(sortAscMethod);
+                }
+            }
+            else{
+                if(colData.sortAscMethod!==undefined){
+                    $this.params.rowsData.sort(colData.sortDescMethod);
+                }
+                else{
+                    columnToSort = sortData.column;
+                    $this.params.rowsData.sort(sortDescMethod);
+                }
+            }
+            $('#' + this.params.elementID + ' tbody').empty();
+            $this.refresh();
         }
         else{
+            var originalURL = $this.params.sourceURL;
+            //todo create a "mergeParams" method on ruteZangada lib to handle that
+            var paramSymbol = (originalURL.indexOf("?")==-1)? "?":"&";
+            var url = originalURL + paramSymbol + "sortcolumn=" + sortData.column + "&sortdirection=" + sortData.sortDir;
+
+            ruteZangada.get(url, function (d, r) {
+                if (r == "success") {
+                    //var url = params.rowsData;
+                    $this.params.rowsData = d;
+                    $('#' + $this.params.elementID + ' tbody').empty();
+                    $this.refresh();
+                    //renderRowsData(target, params, hasColumnDefinitions);
+
+
+                }
+                else {
+                    $("#" + params.elementID).append(params.errorMessageRenderer());
+                }
+            });
 
         }
 
-
-        //if colData has a sortFunction then useit
-        //else if colData has a columnType sort Using
-        //else sort as string
 
     };
 
