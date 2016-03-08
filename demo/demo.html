@@ -67,15 +67,18 @@
 <button id="b3">insertRows</button>
 <button id="b4">clear</button>
 <button id="b5">change</button>
+<button id="b6">filter</button>
 <br><br>
-
+<textarea id="filterta" placeholder="filter expression">[{"description":"Homens","field": "gender","operator": "equals","value":"\"m\""}]</textarea>
+<br><br>
 
 <div id="tc2"></div>
 
 <br><br><br><br>
 <hr>
 <h1>Get data from server</h1>
-
+<input id="filterInput" placeholder="nome"/>
+<button id="btp3">pesquisar</button>
 <div id="tc3"></div>
 
 
@@ -180,6 +183,12 @@
         wi2.changeCellData(0, "gender", s[1 - i]);
     });
 
+    $("#b6").click(function () {
+        var f = JSON.parse($("#filterta").val());
+        wi2.filter(f);
+
+    });
+
 
     /********************************exemplo 3 ***************************************/
 
@@ -230,7 +239,15 @@
 
     var wi3 = ruteZangada.renderWidget("rz-table", "tc3", p3);
 
-
+$("#btp3").click(function () {
+    var skey = $("#filterInput").val();
+    var fe = {
+        field: "name",
+        operator: "equals",
+        value:skey
+    };
+    wi3.filter(fe);
+});
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});

@@ -87,6 +87,19 @@ rz.widgets.RZTableWidgetHelpers = {
                     type:"object"
                 }
             ]
+        },
+        {
+            name:"filter",
+            friendlyName:"Filtrar",
+            description:"Filtra os dados de acordo com uma expressão de filtro",
+            params:[
+                {
+                    name:"filterExpression",
+                    friendlyName:"Expressão de filtro",
+                    description:"Expressão utilizada para filtragem dos dados",
+                    type:"object"
+                }
+            ]
         }
     ]
 };

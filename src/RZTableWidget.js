@@ -113,7 +113,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         postRenderScripts.push(f);
     };
 
-
     var emptyMessageRendererFunction = function (message) {
         return '<h1>*</h1>'.replace("*", message);
     };
@@ -250,6 +249,53 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return info;
     };
 
+    var getTableRequestParams = function () {
+        var paramObj = {
+            page:$this.currentPage || 0, //todo $this.currentPage
+            filter:$this.currentFilter, //todo $this.currentFilter
+            sortColumn: $this.sortColumn,
+            sortDirection:$this.sortDir
+        };
+
+        return paramObj;
+    };
+
+    //region sort columns helpers
+    var findColData = function(findData){
+
+        var cdata = $this.params.columns.find(function(it){
+            return it[findData.prop] == findData.value;
+        });
+        return cdata;
+    };
+    var sortAscMethod = function (a, b) {
+        return genericSortMethod(a,b);
+    };
+    var sortDescMethod = function (a, b) {
+        return genericSortMethod(b,a);
+    };
+    var columnToSort;
+    var genericSortMethod = function (a, b) {
+        var r = 0;
+        var colDef = findColData({prop:"bindingSource", value:columnToSort});
+        var va = a[columnToSort];
+        var vb = b[columnToSort];
+
+        if(colDef.dataType=="numeric"){
+            va = parseFloat(va);
+            vb = parseFloat(vb);
+        }
+        else if(colDef.dataType=="datetime"){
+            va = new Date(va);
+            vb = new Date(vb);
+        }
+
+        if(va < vb) r = -1;
+        if(va > vb) r = 1;
+        return r;
+    };
+    //endregion
+
     this.getRowCount = function () {
         return $('#' + this.params.elementID + ' tbody > tr').length;
     };
@@ -300,42 +346,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.params.rowsData = [];
     };
 
-    var findColData = function(findData){
-
-        var cdata = $this.params.columns.find(function(it){
-            return it[findData.prop] == findData.value;
-        });
-        return cdata;
-    };
-
-    var sortAscMethod = function (a, b) {
-        return genericSortMethod(a,b);
-    };
-
-    var sortDescMethod = function (a, b) {
-        return genericSortMethod(b,a);
-    };
-    var columnToSort;
-    var genericSortMethod = function (a, b) {
-        var r = 0;
-        var colDef = findColData({prop:"bindingSource", value:columnToSort});
-        var va = a[columnToSort];
-        var vb = b[columnToSort];
-
-        if(colDef.dataType=="numeric"){
-            va = parseFloat(va);
-            vb = parseFloat(vb);
-        }
-        else if(colDef.dataType=="datetime"){
-            va = new Date(va);
-            vb = new Date(vb);
-        }
-
-        if(va < vb) r = -1;
-        if(va > vb) r = 1;
-        return r;
-    };
-
     this.sort = function (sortData) {
         var colData = findColData({prop:"bindingSource", value:sortData.column});
         if($this.dataSourceLocation == "local"){
@@ -363,19 +373,17 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
         else{
             var originalURL = $this.params.sourceURL;
-            //todo create a "mergeParams" method on ruteZangada lib to handle that
-            var paramSymbol = (originalURL.indexOf("?")==-1)? "?":"&";
-            var url = originalURL + paramSymbol + "sortcolumn=" + sortData.column + "&sortdirection=" + sortData.sortDir;
+            $this.sortColumn = sortData.sortColumn;
+            $this.sortDir = sortData.sortDir;
+            var paramObj = getTableRequestParams();
+            var pstr = btoa(JSON.stringify(paramObj));
+            var url = rz.utils.uri.mergeParam(originalURL, "tableParams", pstr);
 
             ruteZangada.get(url, function (d, r) {
                 if (r == "success") {
-                    //var url = params.rowsData;
                     $this.params.rowsData = d;
                     $('#' + $this.params.elementID + ' tbody').empty();
                     $this.refresh();
-                    //renderRowsData(target, params, hasColumnDefinitions);
-
-
                 }
                 else {
                     $("#" + params.elementID).append(params.errorMessageRenderer());
@@ -383,8 +391,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             });
 
         }
-
-
     };
 
     this.changeCellData = function (position, cellName, newValue) {
@@ -408,6 +414,60 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
         else {
             throw "INVALID POSITION";
+        }
+    };
+
+    this.filter = function (filterExpression) {
+        if($this.dataSourceLocation == "local"){
+            if($this.params.unfilteredData===undefined){
+                $this.params.unfilteredData = $this.params.rowsData;
+            }
+            if(typeof(filterExpression)=="function"){
+                $this.params.rowsData = $this.params.unfilteredData.filter(filterExpression);
+            }
+            else{
+                var jfe = new rz.plugins.jsonFilterEngine();
+                var f = jfe.buildFilterFunction(filterExpression);
+                $this.params.rowsData = $this.params.unfilteredData.filter(f);
+            }
+            $('#' + $this.params.elementID + ' tbody').empty();
+            $this.refresh();
+        }
+        else{
+            //send expressions to server
+
+
+
+            var originalURL = $this.params.sourceURL;
+            //$this.sortColumn = sortData.sortColumn;
+            //$this.sortDir = sortData.sortDir;
+            $this.currentFilter = filterExpression;
+
+            var paramObj = getTableRequestParams();
+            var pstr = btoa(JSON.stringify(paramObj));
+            var url = rz.utils.uri.mergeParam(originalURL, "tableParams", pstr);
+
+            //todo create a "mergeParams" method on ruteZangada lib to handle that
+            //var paramSymbol = (originalURL.indexOf("?")==-1)? "?":"&";
+            //var url = originalURL + paramSymbol + "sortcolumn=" + sortData.column + "&sortdirection=" + sortData.sortDir;
+
+            ruteZangada.get(url, function (d, r) {
+                if (r == "success") {
+                    //var url = params.rowsData;
+                    $this.params.rowsData = d;
+                    $('#' + $this.params.elementID + ' tbody').empty();
+                    $this.refresh();
+                    //renderRowsData(target, params, hasColumnDefinitions);
+
+
+                }
+                else {
+                    $("#" + params.elementID).append(params.errorMessageRenderer());
+                }
+            });
+
+
+
         }
     }
 });
