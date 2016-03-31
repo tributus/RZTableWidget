@@ -100,6 +100,19 @@ rz.widgets.RZTableWidgetHelpers = {
                     type:"object"
                 }
             ]
+        },
+        {
+            name:"gotoPage",
+            friendlyName:"Ir para página",
+            description:"Navega para uma página de dados específica",
+            params:[
+                {
+                    name:"page",
+                    friendlyName:"Página",
+                    description:"Página",
+                    type:"object"
+                }
+            ]
         }
     ]
 };

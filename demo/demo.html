@@ -81,6 +81,16 @@
 <button id="btp3">pesquisar</button>
 <div id="tc3"></div>
 
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<div class="ui right floated pagination menu">
+    <div style="padding: 10px 5px">Página </div><input type="text" style="width: 60px;text-align: center;border: none;outline: none;"> <div style="padding: 10px 5px">de 55</div>
+    <a class="icon item"><i class="double angle left icon"></i></a>
+    <a class="icon item"><i class="angle left icon"></i></a>
+    <a class="icon item"><i class="angle right icon"></i></a>
+    <a class="icon item"><i class="double angle right icon"></i></a>
+</div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 
 </body>
 <script>
@@ -132,6 +142,22 @@
         }
         //,{cellRenderer: 'actions-renderer'}
     ];
+
+    p2.paging = {
+        enablePaging :true,
+        pageSize:5,
+        initialPage:1
+    };
+    p2.language = {
+        paginate:{
+            page:"Página",
+            of:"de",
+            first:"primeira",
+            previous:"anterior",
+            next:"próxima",
+            last:"última"
+        }
+    };
 
     var sortGender = function (a, b) {
         var r = 0;
@@ -199,7 +225,6 @@
     p3.emptyMessageRenderer = function (msg) {
         return '<span style="color:lightgray">' + msg + '</span>';
     };
-
     p3.columns = [
         {
             headerText: 'Nome',
@@ -236,6 +261,11 @@
             }
         }
     ];
+    p3.paging = {
+        enablePaging :true,
+        pageSize:5,
+        initialPage:1
+    };
 
     var wi3 = ruteZangada.renderWidget("rz-table", "tc3", p3);
 
