@@ -25,6 +25,10 @@ rz.widgets.RZTableWidgetHelpers.sortingHelpers = {
                 va = new Date(va);
                 vb = new Date(vb);
             }
+            else{
+                va = va.toLowerCase();
+                vb = vb.toLowerCase();
+            }
 
             if(va < vb) r = -1;
             if(va > vb) r = 1;

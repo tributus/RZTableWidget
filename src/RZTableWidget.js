@@ -6,47 +6,113 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     var sortingHelper = rz.widgets.RZTableWidgetHelpers.sortingHelpers;
 
     this.initialize = function (params, initialized) {
-        //set params
-        $this.params = params || {};
-        $this.params.tableClass = params.tableClass || "ui basic table";
-        $this.params.renderTableHead = (params.renderTableHead === undefined) ? true : !!params.renderTableHead;
-        $this.params.elementID = params.id || generateRandomID(8);
-        $this.params.addedAfterRowClass = params.addedAfterRowClass || "added-after-row";
-        $this.params.displayEmptyMessage = (params.displayEmptyMessage === undefined) ? true : !!params.displayEmptyMessage;
-        $this.params.emptyTableMessage = params.emptyTableMessage || "empty";
-        $this.params.emptyMessageRenderer = params.emptyMessageRenderer || emptyMessageRendererFunction;
-        $this.params.errorMessageRenderer = params.errorMessageRenderer || errorMessageRendererFunction;
-
-        //language
-        $this.params.language = params.language || {};
-        $this.params.language.paginate = params.language.paginate || {};
-        $this.params.language.paginate.page = params.language.paginate.page || "Page";
-        $this.params.language.paginate.of = params.language.paginate.of || "of";
-        $this.params.language.paginate.first = params.language.paginate.first || "first";
-        $this.params.language.paginate.previous = params.language.paginate.previous || "previous";
-        $this.params.language.paginate.next = params.language.paginate.next || "next";
-        $this.params.language.paginate.last = params.language.paginate.last || "last";
-        if(params.paging===undefined) params.paging = {};
-        //$this.params.paging = {};
-        $this.params.paging.enablePaging = params.paging.enablePaging || false;
-        $this.params.paging.pageSize = params.paging.pageSize || 20;
-        $this.params.paging.currentPage = params.paging.currentPage || 1;
-
-
-        initialized($this.params);
+        var defaultParams = {
+            tableData:{
+                dataSource:undefined,
+                getDataMethod:function(src,callback){
+                    //callback(status,result); //where result contains {header(pagingInfo) and rowsSource([array-of-objects])}
+                }
+            },
+            columns:undefined,
+            ui:{
+                tableClass:"ui basic table",                            //initial table style
+                renderTableHead:true,                                   //define if table header will be rendered
+                elementID:generateRandomID(8),                          //root element id;
+                addedAfterRowClass:"added-after-row",                   //css class to associate with new added rows
+                displayEmptyMessage:true,                               //define if empry message will be displayed
+                displayTableFooter:false,                               //define if table footer will be rendered
+                emptyTableMessage: "no data to display",                //empty message
+                emptyMessageRenderer: emptyMessageRendererFunction,     //default renderer for empty messages
+                errorMessageRenderer:errorMessageRendererFunction       //default renderer for error messages
+            },
+            language:{                                                  //localized strings for widget
+                paginate:{                                              //localized strings for pagination
+                    page: "Page",                                       //"Page" localized string
+                    of:"of",                                            //"of" localized string
+                    first:"first",                                      //"first" localized string
+                    previous:"previous",                                //"previous" localized string
+                    next:"next",                                        //"next" localized string
+                    last:"last"                                         //"last" localized string
+                }
+            },
+            paging:{                                                    //pagination definition for plugin
+                enablePaging:false,                                     //enables or disable paging
+                pageSize:20,                                            //default page size
+                currentPage:1                                           //default page
+            }
+        };
+        $this.params = $.extend(defaultParams,params);
+        initialized();
     };
 
-    this.render = function (target, params) {
-        if (typeof(params.rowsData) == "string") {
-            $this.dataSourceLocation = "server";
-            getServerData(target, params);
+    this.render = function (target) {
+        renderTableStructure(target,renderTableRows);
+    };
+
+    var renderTableStructure = function (target,renderRowsMethod) {
+        var sb = new StringBuilder();
+        sb.appendFormat('<table id="{1}" class="{0}">', $this.params.ui.tableClass, $this.params.ui.elementID);
+        if($this.params.columns !== undefined){
+            renderTableHeader(sb);
         }
-        else {
-            $this.dataSourceLocation = "local";
-            renderRowsData(target, params);
+        if($this.params.paging.enablePaging || $this.params.ui.displayTableFooter){
+            renderTableFooter(sb);
+        }
+        sb.appendFormat('</table>');
+        $('#' + target).html(sb.toString());
+    };
+
+    /**********************ATENÇÃO*****************************/
+    /*ESTE DEVE SER O ÚNICO MÉTODO RESPONSÁVEL PELA RENDERIZAÇÃO DO TABLE HEADER, INDEPENDENTE DA ESTRATÉGIA*/
+    /*ÇEJE FIEL A ISTO*/
+    var renderTableHeader = function (sb) {
+        //columnRefs pode ser: Objeto de definição de colunas SEMPRE.
+        //Quando não for definido, a mesma deverá ser criada à partir de uma amostra (obj) cujas colunas serão extraídas
+        //e sua definição criada em $this.params.columns (ensureColumnDefs)
+
+
+        if ($this.params.ui.renderTableHead && $this.params.columns!==undefined) {
+            sb.append('<thead>');
+            sb.append('<tr>');
+            $this.params.columns.forEach(function (col) {
+                sb.appendFormat('<th{0} data-bindingsource="{1}">', resolveHeaderClass(col),col.bindingSource || "");
+                var renderer = rz.widgets.tableHelpers.getCellRenderer(col.headerRender || 'default');
+                var value = col.headerText || col.bindingSource;
+                sb.append(renderer(value, col));
+                sb.append('</th>');
+            });
+            sb.append('</tr>');
+            sb.append('</thead>');
         }
     };
 
+
+    var renderTableRows = function () {
+
+    };
+
+    var resolveHeaderClass = function (col) {
+        var classData = "";
+        //column size
+        if (col.size !== undefined) {
+            classData += rz.widgets.tableHelpers.sizeNames[col.size] + " wide ";
+        }
+        //column alignement
+        var align = col.headerAlignment || col.alignment || "left";
+        if (align != "left") {
+            classData += align + " aligned "
+        }
+        if(col.sortable===undefined) col.sortable=true;
+        if(!col.sortable){
+            classData += " unsortable ";
+        }
+        return (classData != "") ? ' class="' + classData + '"' : "";
+    };
+
+    var renderTableFooter = function (sb) {
+        sb.appendFormat('<tfoot></tfoot>');
+    };
+//---------------------------------------------------------------------------------------------------------------------------------------------
     var getServerData = function (target, params) {
         var hasColumnDefinitions = params.columns !== undefined;
         if (hasColumnDefinitions) {
@@ -163,6 +229,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return '<tbody><tr><td class="error-message">error getting server data</td></tr></tbody>';
     };
 
+    /*
     var renderTableHead = function (sb, params) {
         if (params.renderTableHead) {
             sb.append('<thead>');
@@ -179,24 +246,8 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             sb.append('</thead>');
         }
     };
+    */
 
-    var resolveHeaderClass = function (col) {
-        var classData = "";
-        //column size
-        if (col.size !== undefined) {
-            classData += rz.widgets.tableHelpers.sizeNames[col.size] + " wide ";
-        }
-        //column alignement
-        var align = col.headerAlignment || col.alignment || "left";
-        if (align != "left") {
-            classData += align + " aligned "
-        }
-        if(col.sortable===undefined) col.sortable=true;
-        if(!col.sortable){
-            classData += " unsortable ";
-        }
-        return (classData != "") ? ' class="' + classData + '"' : "";
-    };
 
     var renderTableBody = function (sb, params) {
         sb.append('<tbody>');
@@ -218,7 +269,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return totalPages;
     };
 
-    var renderTableFooter = function (sb, params) {
+    var renderTableFooterXXXXXXXX = function (sb, params) {
         if(params.paging !==undefined && params.paging.enablePaging){
             sb.appendFormat('<tfoot>');
             sb.appendFormat('   <tr><td colspan="{0}">',params.columns.length);

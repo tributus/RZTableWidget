@@ -82,8 +82,12 @@
 <div id="tc3"></div>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 <div class="ui right floated pagination menu">
-    <div style="padding: 10px 5px">Página </div><input type="text" style="width: 60px;text-align: center;border: none;outline: none;"> <div style="padding: 10px 5px">de 55</div>
+    <div style="padding: 10px 5px">Página</div>
+    <input type="text" style="width: 60px;text-align: center;border: none;outline: none;">
+
+    <div style="padding: 10px 5px">de 55</div>
     <a class="icon item"><i class="double angle left icon"></i></a>
     <a class="icon item"><i class="angle left icon"></i></a>
     <a class="icon item"><i class="angle right icon"></i></a>
@@ -109,60 +113,65 @@
 
 
     /********************************exemplo 2 ***************************************/
-    var p2 = {};
-    p2.tableClass = "ui sortable table stripped";
+    var p2 = {
+                ui: {
+                    tableClass: "ui sortable table stripped",
+                    emptyTableMessage: "nenhum item para exibir",
+                    emptyMessageRenderer: function (msg) {
+                        return '<span style="color:lightgray">' + msg + '</span>';
+                    }
+                },
+                columns: [
+                    {
+                        headerText: 'Nome',
+                        bindingSource: 'name',
+                        cellRenderer: 'default',
+                        size: 10
+                    },
+                    {
+                        headerText: "Idade", bindingSource: "age", size: 3, alignment: "right", dataType: "numeric"
+                    },
+                    {
+                        headerText: 'Gênero',
+                        bindingSource: 'gender',
+                        cellRenderer: genderCustomRenderer,
+                        headerRender: headerCustomRenderer,
+                        size: 3,
+                        alignment: 'center',
+                        headerAlignment: 'right',
+                        sortAscMethod: function (a, b) {
+                            return sortGender(a, b);
+                        },
+                        sortDescMethod: function (a, b) {
+                            return sortGender(b, a);
+                        }
+                    }
+                    //,{cellRenderer: 'actions-renderer'}
+                ],
+                paging: {
+                    enablePaging: true,
+                    pageSize: 5,
+                    currentPage: 1
+                },
+                language: {
+                    paginate: {
+                        page: "Página",
+                        of: "de",
+                        first: "primeira",
+                        previous: "anterior",
+                        next: "próxima",
+                        last: "última"
+                    }
+                }
+            };
+
     p2.rowsData = srdata;
-    p2.emptyTableMessage = "nenhum item para exibir";
-    p2.emptyMessageRenderer = function (msg) {
-        return '<span style="color:lightgray">' + msg + '</span>';
-    };
 
-    p2.columns = [
-        {
-            headerText: 'Nome',
-            bindingSource: 'name',
-            cellRenderer: 'default',
-            size: 10
-        },
-        {headerText: "Idade", bindingSource: "age", size: 3, alignment: "right", dataType:"numeric"},
-        {
-            headerText: 'Gênero',
-            bindingSource: 'gender',
-            cellRenderer: genderCustomRenderer,
-            headerRender: headerCustomRenderer,
-            size: 3,
-            alignment: 'center',
-            headerAlignment: 'right',
-            sortAscMethod: function (a, b) {
-                return sortGender(a,b);
-            },
-            sortDescMethod: function(a,b){
-                return sortGender(b,a);
-            }
-        }
-        //,{cellRenderer: 'actions-renderer'}
-    ];
-
-    p2.paging = {
-        enablePaging :true,
-        pageSize:5,
-        initialPage:1
-    };
-    p2.language = {
-        paginate:{
-            page:"Página",
-            of:"de",
-            first:"primeira",
-            previous:"anterior",
-            next:"próxima",
-            last:"última"
-        }
-    };
 
     var sortGender = function (a, b) {
         var r = 0;
-        if(a.gender < b.gender) r = -1;
-        if(a.gender > b.gender) r = 1;
+        if (a.gender < b.gender) r = -1;
+        if (a.gender > b.gender) r = 1;
         return r;
     };
 
@@ -237,7 +246,7 @@
             bindingSource: "age",
             size: 3,
             alignment: "right",
-            dataType:"numeric"
+            dataType: "numeric"
         },
         {
             headerText: 'Gênero',
@@ -262,22 +271,22 @@
         }
     ];
     p3.paging = {
-        enablePaging :true,
-        pageSize:5,
-        initialPage:1
+        enablePaging: true,
+        pageSize: 5,
+        initialPage: 1
     };
 
     var wi3 = ruteZangada.renderWidget("rz-table", "tc3", p3);
 
-$("#btp3").click(function () {
-    var skey = $("#filterInput").val();
-    var fe = {
-        field: "name",
-        operator: "equals",
-        value:skey
-    };
-    wi3.filter(fe);
-});
+    $("#btp3").click(function () {
+        var skey = $("#filterInput").val();
+        var fe = {
+            field: "name",
+            operator: "equals",
+            value: skey
+        };
+        wi3.filter(fe);
+    });
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});
     //$("#b2").click(function () {});
