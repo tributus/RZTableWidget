@@ -3,6 +3,7 @@
  */
 rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidgetHelpers.TableWidgetInterface, [], function () {
     var $this = this;
+    var sortingHelper = rz.widgets.RZTableWidgetHelpers.sortingHelpers;
 
     this.initialize = function (params, initialized) {
         //set params
@@ -283,6 +284,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             return rowData;
         }
     };
+
     var renderDataRows = function (sb, rowData, isPostAddedRow) {
         var page = getDataPage(rowData,$this.params);
         page.forEach(function (it, rowIndex) {
@@ -351,6 +353,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     //region sort columns helpers
+    /*
     var findColData = function(findData){
 
         var cdata = $this.params.columns.find(function(it){
@@ -358,16 +361,18 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         });
         return cdata;
     };
+
     var sortAscMethod = function (a, b) {
         return genericSortMethod(a,b);
     };
     var sortDescMethod = function (a, b) {
         return genericSortMethod(b,a);
     };
+
     var columnToSort;
     var genericSortMethod = function (a, b) {
         var r = 0;
-        var colDef = findColData({prop:"bindingSource", value:columnToSort});
+        var colDef = sortingHelper.findColData({prop:"bindingSource", value:columnToSort},$this);
         var va = a[columnToSort];
         var vb = b[columnToSort];
 
@@ -384,6 +389,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         if(va > vb) r = 1;
         return r;
     };
+    */
     //endregion
 
     this.getRowCount = function () {
@@ -438,16 +444,16 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     this.sort = function (sortData) {
-        var colData = findColData({prop:"bindingSource", value:sortData.column});
+        var colData = sortingHelper.findColData({prop:"bindingSource", value:sortData.column},$this);
         if($this.dataSourceLocation == "local"){
-
+            $this.gotoPage("first");
             if(sortData.sortDir=="asc"){
                 if(colData.sortAscMethod!==undefined){
                     $this.params.rowsData.sort(colData.sortAscMethod);
                 }
                 else{
-                    columnToSort = sortData.column;
-                    $this.params.rowsData.sort(sortAscMethod);
+                    var columnToSort = sortData.column;
+                    $this.params.rowsData.sort(sortingHelper.sortAscMethod($this,columnToSort));
                 }
             }
             else{
@@ -455,11 +461,11 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                     $this.params.rowsData.sort(colData.sortDescMethod);
                 }
                 else{
-                    columnToSort = sortData.column;
-                    $this.params.rowsData.sort(sortDescMethod);
+                    var columnToSort = sortData.column;
+                    $this.params.rowsData.sort(sortingHelper.sortDescMethod($this,columnToSort));
                 }
             }
-            $('#' + this.params.elementID + ' tbody').empty();
+            //$('#' + this.params.elementID + ' tbody').empty();
             $this.refresh();
         }
         else{
@@ -480,7 +486,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                     $("#" + params.elementID).append(params.errorMessageRenderer());
                 }
             });
-
         }
     };
 

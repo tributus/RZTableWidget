@@ -8,6 +8,7 @@ module.exports = function (grunt) {
                     //"src/NamespaceDeclares.js",
                     "src/InterfaceAndEvents.js",
                     "src/TableHelpers.js",
+                    "src/RZTableWidget.Sorting.js",
                     "src/CellRenderers/*.js",
                     "src/RZTableWidget.js"
                 ],
