@@ -98,6 +98,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                 if (plot) {
                     $("#" + $this.params.ui.elementID + " thead").html(sb.toString());
                     setupHelpers.setupSorting();
+                    Onde colocar o setup e o ploting Paging? (Acho que há cada busca de dados);
                 }
             }
         },
@@ -186,8 +187,32 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                     }
                 });
             }
+        },
+        setupPaging : function () {
+            var baseid = $this.params.ui.elementID;
+            var inputID = "#" + baseid + "_paginginput";
+            var btCL = "." + baseid + "-paging-button";
+            var doPagingAction = function (src) {
+                var action = $(src.currentTarget).data("paging-action");
+                switch (action) {
+                    case "first":
+                    case "previous":
+                    case "next":
+                    case "last":
+                        $this.gotoPage(action);
+                        break;
+                    case "specific":
+                        $this.gotoPage($(inputID).val());
+                        break;
+                }
+            };
+            $(btCL).click(doPagingAction);
+            $(inputID).keyup(function (e) {
+                if (e.keyCode == 13) {
+                    doPagingAction(e);
+                }
+            });
         }
-
     };
 
     var getRows = function (callback) {
@@ -249,33 +274,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             setupPaging();
         }
     };
-
-    var setupPaging = function () {
-        var baseid = $this.params.elementID;
-        var inputID = "#" + baseid + "_paginginput";
-        var btCL = "." + baseid + "-paging-button";
-        var doPagingAction = function (src) {
-            var action = $(src.currentTarget).data("paging-action");
-            switch (action) {
-                case "first":
-                case "previous":
-                case "next":
-                case "last":
-                    $this.gotoPage(action);
-                    break;
-                case "specific":
-                    $this.gotoPage($(inputID).val());
-                    break;
-            }
-        };
-        $(btCL).click(doPagingAction);
-        $(inputID).keyup(function (e) {
-            if (e.keyCode == 13) {
-                doPagingAction(e);
-            }
-        });
-    };
-
 
     /*var renderRowsData = function (target, params, onlyRows) {
      var sb = new StringBuilder();
