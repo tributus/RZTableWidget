@@ -84,4 +84,4 @@ rz.widgets.RZTableWidgetHelpers.sortingHelpers = {
 };
 var sortingHelpers = rz.widgets.RZTableWidgetHelpers.sortingHelpers;
 
-//trazer todos os mÈtodos relacionados a sorting pra c·
+//trazer todos os m√©todos relacionados a sorting pra c√°

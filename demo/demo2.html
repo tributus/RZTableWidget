@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>RZTableWidget</title>
+    <!--<script src="../lib/jquery-2.1.4.min.js"></script>-->
+    <script src="../bower_components/rzclientengine/dist/RZClientEngine-standalone.min.js"></script>
+    <script src="../bower_components/semantic/dist/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../bower_components/semantic/dist/semantic.min.css">
+    <script src="../dist/RZTableWidget.js"></script>
+    <style>
+
+        @-webkit-keyframes animation {
+            0% {
+                background: none;
+            }
+            10.0% {
+                background: #D1E2F4;
+            }
+            100.0% {
+                background: none;
+            }
+        }
+
+        @keyframes animation {
+            0% {
+                background: none;
+            }
+            10.0% {
+                background: #D1E2F4;
+            }
+            100.0% {
+                background: none;
+            }
+        }
+
+        .added-after-row > td,
+        .changed-cell-1,
+        .changed-cell-2 {
+            -webkit-animation-name: animation;
+            -webkit-animation-duration: 600ms;
+            -webkit-animation-timing-function: ease-in-out;
+            -webkit-animation-play-state: running;
+
+            animation-name: animation;
+            animation-duration: 600ms;
+            animation-timing-function: ease-in-out;
+            animation-play-state: running;
+            background: none;
+        }
+
+
+    </style>
+</head>
+<body>
+<h1>Column definitions</h1>
+
+<input id="i1" value="0">
+<button id="b2">getRowData</button>
+<button id="b1">addRow</button>
+<button id="b3">insertRows</button>
+<button id="b4">clear</button>
+<button id="b5">change</button>
+<button id="b6">filter</button>
+<br><br>
+<textarea id="filterta" placeholder="filter expression">[{"description":"Homens","field": "gender","operator": "equals","value":"\"m\""}]</textarea>
+<br><br>
+
+<div id="tc2"></div>
+</body>
+<script>
+    var getDataMethod = function(p,callback){
+        var srdata = [
+            {name: "anderson", age: 38, gender: "m"},
+            {name: "maria", age: 27, gender: "f"},
+            {name: "isabela", age: 32, gender: "f"},
+            {name: "Lara", age: 9, gender: "f"},
+            {name: "pedro", age: 39, gender: "m"},
+            {name: "Zanna", age: 98, gender: "f"},
+            {name: "Eduardo", age: 8, gender: "f"}
+        ];
+
+        /************SORTING*********************/
+        var sorCol = p.sorting.sortCol;
+        var sortDir = p.sorting.sortDir;
+        var sortFunction = function (a, b) {
+            if(sorCol !=""){
+                var va = a[sorCol];
+                var vb = b[sorCol];
+                if(va.toLowerCase){
+                    va = va.toLowerCase();
+                    vb = vb.toLowerCase();
+                }
+                if(va==vb) return 0;
+                if(sortDir=="asc"){
+                    return (va > vb)? -1:1;
+                }
+                else{
+                    return (va < vb)? -1:1;
+                }
+            }
+            else{
+                return 0;
+            }
+        };
+        srdata = srdata.sort(sortFunction);
+        /************SORTING*********************/
+
+        //padrão esperado
+        callback({
+            header:{
+                currentPage:1,
+                totalPages:150,
+                sortColumn:"",
+                sortDir:""
+            },
+            rows:srdata
+        },"success");
+    };
+
+
+    var p2 = {
+        ui: {
+            tableClass: "ui sortable table stripped",
+            emptyTableMessage: "nenhum item para exibir",
+            elementID:"tbkct",
+            emptyMessageRenderer: function (msg) {
+                return '<span style="color:lightgray">' + msg + '</span>';
+            }
+        },
+
+        columns: [
+            {
+                headerText: 'Nome',
+                bindingSource: 'name',
+                cellRenderer: 'default',
+                size: 10
+            },
+            {
+                headerText: "Idade", bindingSource: "age", size: 3, alignment: "right", dataType: "numeric"
+            },
+            {
+                headerText: 'Gênero',
+                bindingSource: 'gender',
+                cellRenderer: genderCustomRenderer,
+                headerRender: headerCustomRenderer,
+                size: 3,
+                alignment: 'center',
+                headerAlignment: 'right',
+                sortAscMethod: function (a, b) {
+                    return sortGender(a, b);
+                },
+                sortDescMethod: function (a, b) {
+                    return sortGender(b, a);
+                }
+            }
+            //,{cellRenderer: 'actions-renderer'}
+        ],
+        paging: {
+            enablePaging: true,
+            pageSize: 5,
+            currentPage: 1
+        },
+        language: {
+            paginate: {
+                page: "Página",
+                of: "de",
+                first: "primeira",
+                previous: "anterior",
+                next: "próxima",
+                last: "última"
+            }
+        },
+        tableData:{
+            dataSource:getDataMethod
+        }
+    };
+
+    //p2.rowsData = srdata;
+
+    var wi2 = ruteZangada.renderWidget("rz-table", "tc2", p2);
+
+    function genderCustomRenderer(value, full) {
+        return (value == "m") ?
+                '<span style="color:blue">Masculino</span>' :
+                '<span style="color:pink">Feminino</span>';
+    }
+
+    function headerCustomRenderer(value, full) {
+        console.log(value, full);
+        return '<span>' + value + ' <i class="heterosexual icon"></i></span>';
+    }
+
+    $("#b1").click(function () {
+        var rowsData = [
+            {name: "anabelle", age: 64, gender: "f"},
+            {name: "gabrielle", age: 32, gender: "f"},
+            {name: "isabelle", age: 28, gender: "f"}
+        ];
+        wi2.addRows(rowsData);
+    });
+
+    $("#b2").click(function () {
+        var pos = parseInt($("#i1").val());
+        console.log("data:", wi2.getRowData(pos));
+    });
+
+    $("#b3").click(function () {
+        var pos = parseInt($("#i1").val());
+        var newRow = {name: "new inserted row", age: parseInt(Math.random() * 100), gender: "f"};
+        wi2.insertRows(pos, newRow);
+    });
+
+    $("#b4").click(function () {
+        wi2.clear();
+    });
+    var i = 0;
+    $("#b5").click(function () {
+        var s = ['m', 'f'];
+        i = 1 - i;
+        wi2.changeCellData(0, "gender", s[1 - i]);
+    });
+
+    $("#b6").click(function () {
+        var f = JSON.parse($("#filterta").val());
+        wi2.filter(f);
+
+    });
+
+
+</script>
+</html>
