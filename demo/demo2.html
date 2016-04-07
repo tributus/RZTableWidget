@@ -69,15 +69,27 @@
 <div id="tc2"></div>
 </body>
 <script>
+    var tp = 50;
+    var ap = 1;
     var getDataMethod = function(p,callback){
+        //console.warn("CHEGOU",p);
         var srdata = [
-            {name: "anderson", age: 38, gender: "m"},
-            {name: "maria", age: 27, gender: "f"},
-            {name: "isabela", age: 32, gender: "f"},
-            {name: "Lara", age: 9, gender: "f"},
-            {name: "pedro", age: 39, gender: "m"},
-            {name: "Zanna", age: 98, gender: "f"},
-            {name: "Eduardo", age: 8, gender: "f"}
+            {name: "anderson", age: 12, gender: "m"},
+            {name: "maria", age: 13, gender: "f"},
+            {name: "isabela", age: 14, gender: "f"},
+            {name: "Lara", age: 15, gender: "f"},
+            {name: "pedro", age: 16, gender: "m"},
+            {name: "Zanna", age: 17, gender: "f"},
+            {name: "Eduardo", age: 18, gender: "f"},
+            {name: "Leo Medeiros", age: 19, gender: "m"},
+            {name: "Analha Cunha Silva", age: 20, gender: "f"},
+            {name: "Lêda Giovanna", age: 21, gender: "f"},
+            {name: "Carol Viana", age: 22, gender: "f"},
+            {name: "Eriberto Feitosa", age: 23, gender: "m"},
+            {name: "Júnior Silva", age: 24, gender: "m"},
+            {name: "Lemuel Barbosa", age: 25, gender: "m"},
+            {name: "Edite Nunes", age: 26, gender: "f"},
+            {name: "Rafaela Lima", age: 27, gender: "f"}
         ];
 
         /************SORTING*********************/
@@ -93,10 +105,10 @@
                 }
                 if(va==vb) return 0;
                 if(sortDir=="asc"){
-                    return (va > vb)? -1:1;
+                    return (va > vb)? 1:-1;
                 }
                 else{
-                    return (va < vb)? -1:1;
+                    return (va < vb)? 1:-1;
                 }
             }
             else{
@@ -106,11 +118,32 @@
         srdata = srdata.sort(sortFunction);
         /************SORTING*********************/
 
+        /***********PAGING************************/
+        var calculateTotalPages = function () {
+            return  Math.ceil(srdata.length / p.paging.pageSize);
+        };
+        var getDataPage = function (dp) {
+            if (p.paging.pageSize >= dp.length) {
+                return dp;
+            }
+            else {
+                var pSize = p.paging.pageSize;
+                var curPage = p.paging.currentPage;
+                var startIndex = (curPage - 1) * pSize;
+                var endIndex = startIndex + pSize;
+                return dp.slice(startIndex, endIndex);
+            }
+        };
+        var totalPages = calculateTotalPages();
+        srdata = getDataPage(srdata);
+
+        /***********PAGING************************/
+
         //padrão esperado
         callback({
             header:{
-                currentPage:1,
-                totalPages:150,
+                currentPage:p.paging.currentPage,
+                totalPages:totalPages,
                 sortColumn:"",
                 sortDir:""
             },

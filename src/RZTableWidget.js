@@ -8,7 +8,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         sortDir: ""
     };
     $this.filter = {};
-    $this.paging = {};
 
     var sortingHelper = rz.widgets.RZTableWidgetHelpers.sortingHelpers;
     var internals = rz.widgets.RZTableWidgetHelpers.Internals;
@@ -49,7 +48,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             }
         };
         $this.params = $.extend(true, {}, defaultParams, p);
-        $this.paging = $this.params.paging;
         initialized();
     };
 
@@ -58,7 +56,11 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
 
+
     var renderingHelpers = {
+        hasFooter: function () {
+            return $this.params.paging.enablePaging; //|| anotherFooterElement
+        },
         renderTableStructure: function (target, renderRowsMethod) {
             var sb = new StringBuilder();
             sb.appendFormat('<table id="{1}" class="{0}">', $this.params.ui.tableClass, $this.params.ui.elementID);
@@ -69,7 +71,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             }
             sb.appendFormat('</table>');
             $('#' + target).html(sb.toString());
-            if($this.params.columns!==undefined) setupHelpers.setupSorting();
+            if ($this.params.columns !== undefined) setupHelpers.setupSorting();
             renderRowsMethod()
         },
         renderTableHeader: function (sb) {
@@ -98,7 +100,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                 if (plot) {
                     $("#" + $this.params.ui.elementID + " thead").html(sb.toString());
                     setupHelpers.setupSorting();
-                    Onde colocar o setup e o ploting Paging? (Acho que há cada busca de dados);
                 }
             }
         },
@@ -106,18 +107,26 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             getRows(function (data) {
                 if (internals.isEmptyResult(data)) {
                     renderingHelpers.renderEmptyDataRow();
+                    renderingHelpers.removePagingToolBox();
                 }
                 else {
-                    $this.rowsData = internals.ensureDataSource(data);
+                    var ds = internals.ensureDataSource(data);
+                    $this.params.paging.currentPage = ds.header.currentPage;
+                    $this.params.paging.totalPages = ds.header.totalPages;
+                    $this.rowsData = ds.rows;
+
                     var defined = setupHelpers.ensureColumns($this.getRowData(0));
-                    if (defined) renderingHelpers.renderTableHeaderContent();
-                    renderingHelpers.renderAndPlotRows()
+                    if (defined) {
+                        renderingHelpers.renderTableHeaderContent();
+                    }
+                    renderingHelpers.renderAndPlotRows();
+                    renderingHelpers.renderPagingToolBox();
                 }
             });
         },
         renderAndPlotRows: function (isPostAddedRow) {
             var sb = new StringBuilder();
-            $this.rowsData.rows.forEach(function (it, rowIndex) {
+            $this.rowsData.forEach(function (it, rowIndex) {
                 it.__uid = generateRandomID(16);
                 sb.appendFormat('<tr{0}>', (isPostAddedRow) ? ' class="' + $this.params.ui.addedAfterRowClass + '"' : '');
                 $this.params.columns.forEach(function (col) {
@@ -130,7 +139,47 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             internals.plotOnBody(sb, "#" + $this.params.ui.elementID);
         },
         renderTableFooter: function (sb) {
-            sb.appendFormat('<tfoot></tfoot>');
+            if(renderingHelpers.hasFooter()){
+                sb.appendFormat('<tfoot><tr><td colspan="6000"></td></tr></tfoot>');
+            }
+        },
+        removePagingToolBox: function () {
+            var pagingToolboxID ="#" + $this.params.ui.elementID + "_paging_toolbox";
+            $(pagingToolboxID).remove();
+        },
+        renderPagingToolBox : function () {
+            if ($this.params.paging.enablePaging) {
+                var pagingToolboxID = $this.params.ui.elementID + "_paging_toolbox";
+                if($("#" + pagingToolboxID).length==1){
+                    var piid = "#@_paginginput".replace("@",$this.params.ui.elementID);
+                    var tpid = "#@_total_pages_el".replace("@",$this.params.ui.elementID);
+                    $(piid).val($this.params.paging.currentPage);
+                    $(tpid).html($this.params.paging.totalPages);
+                }
+                else{
+                    var sb = new StringBuilder();
+                    //sb.appendFormat('   <td colspan="{0}">', params.columns.length);
+
+                    sb.appendFormat('<div id="{0}" class="ui right floated pagination menu">',pagingToolboxID);
+                    sb.appendFormat('    <div style="padding: 10px 5px">{0} </div><input id="{4}_paginginput" type="text" style="width: 60px;text-align: center;border: none;outline: none;" value="{2}" data-paging-action="specific"> <span style="padding: 10px 5px">{1}</span> <span style="padding: 10px 5px" id="{4}_total_pages_el">{3}</span>',
+                        $this.params.language.paginate.page,
+                        $this.params.language.paginate.of,
+                        $this.params.paging.currentPage,
+                        $this.params.paging.totalPages,
+                        $this.params.ui.elementID
+                    );
+                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="first"><i class="double angle left icon"></i></a>', $this.params.language.paginate.first, $this.params.ui.elementID);
+                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="previous"><i class="angle left icon"></i></a>', $this.params.language.paginate.previous, $this.params.ui.elementID);
+                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="next"><i class="angle right icon"></i></a>', $this.params.language.paginate.next, $this.params.ui.elementID);
+                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="last"><i class="double angle right icon"></i></a>', $this.params.language.paginate.last, $this.params.ui.elementID);
+                    sb.appendFormat('</div>');
+
+                    //sb.appendFormat('    </td>');
+                    $("#" + $this.params.ui.elementID + " tfoot > tr > td").html(sb.toString());
+                    setupHelpers.setupPaging();
+                }
+            }
+
         },
         renderEmptyDataRow: function () {
             if ($this.params.ui.displayEmptyMessage) {
@@ -174,21 +223,16 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                         var cssClass = (isAscending) ? "sorted descending" : "sorted ascending";
                         el.addClass(cssClass);
                         if (bs != "") {
-                            //var sortData = {
-                            //    column: bs,
-                            //    sortDir: (isAscending) ? "desc" : "asc"
-                            //};
-                            //$this.sort(sortData);
-                            //console.warn("agora é só sortar",sortData);
                             $this.sorting.sortCol = bs;
                             $this.sorting.sortDir = (isAscending) ? "desc" : "asc";
+                            $this.params.paging.currentPage = 1;
                             renderingHelpers.renderTableRows();
                         }
                     }
                 });
             }
         },
-        setupPaging : function () {
+        setupPaging: function () {
             var baseid = $this.params.ui.elementID;
             var inputID = "#" + baseid + "_paginginput";
             var btCL = "." + baseid + "-paging-button";
@@ -239,9 +283,9 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             else if (dsType == "string") {
                 var url = $this.params.tableData.dataSource;
                 //paging
-                url = rz.utils.uri.mergeParam(url, "paging", $this.paging.enablePaging);
-                url = rz.utils.uri.mergeParam(url, "curpage", $this.paging.currentPage);
-                url = rz.utils.uri.mergeParam(url, "psize", $this.paging.pageSize);
+                url = rz.utils.uri.mergeParam(url, "paging", $this.params.paging.enablePaging);
+                url = rz.utils.uri.mergeParam(url, "curpage", $this.params.paging.currentPage);
+                url = rz.utils.uri.mergeParam(url, "psize", $this.params.paging.pageSize);
                 //sorting
                 url = rz.utils.uri.mergeParam(url, "sortcol", $this.sorting.sortCol);
                 url = rz.utils.uri.mergeParam(url, "sortdir", $this.sorting.sortDir);
@@ -544,7 +588,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
 
     this.getRowData = function (position) {
         var tprd = $this.rowsData;
-        return (tprd !== undefined && tprd.rows.length > position) ? tprd.rows[position] : undefined;
+        return (tprd !== undefined && tprd.length > position) ? tprd[position] : undefined;
     };
 
     this.clear = function () {
@@ -676,7 +720,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     this.gotoPage = function (page) {
-        var inputID = "#" + $this.params.elementID + "_paginginput";
         var totalPages = $this.params.paging.totalPages;
         var ensureValidPage = function (pg) {
             var n = parseInt(pg);
@@ -715,15 +758,15 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                 break;
         }
         if (currentPage !== $this.params.paging.currentPage) {
-
+            renderingHelpers.renderTableRows();
             /*
              var pSize = params.paging.pageSize;
              var curPage = params.paging.currentPage;
              var startIndex = (curPage -1) * pSize;
              var endIndex = startIndex + pSize;
              return rowData.slice(startIndex,endIndex);
-             */
 
+            -----------------------------------------------
             var p = {
                 paging: {
                     pageSize: $this.params.paging.pageSize,
@@ -734,6 +777,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             $this.params.rowsData = pgData;
             $(inputID).val($this.params.paging.currentPage);
             $this.refresh();
+             */
         }
     }
 });
