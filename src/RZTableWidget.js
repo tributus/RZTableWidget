@@ -2,16 +2,20 @@
  * Created by anderson.santos on 18/01/2016.
  */
 rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidgetHelpers.TableWidgetInterface, [], function () {
+
+    //internals declares
     var $this = this;
-    $this.sorting = {
-        sortCol: "",
-        sortDir: ""
-    };
+    $this.sorting = {sortCol: "", sortDir: ""};
     $this.filter = {};
 
-    var sortingHelper = rz.widgets.RZTableWidgetHelpers.sortingHelpers;
-    var internals = rz.widgets.RZTableWidgetHelpers.Internals;
+    //helpers
+    $this.internals = rz.widgets.RZTableWidgetHelpers.Internals;
+    $this.renderingHelpers = new rz.widgets.RZTableWidgetHelpers.renderingHelpers($this);
+    $this.setupHelpers = new rz.widgets.RZTableWidgetHelpers.setupHelpers($this);
+    $this.runtimeHelpers = new rz.widgets.RZTableWidgetHelpers.runtimeHelpers($this);
 
+
+    //widget interface
     this.initialize = function (p, initialized) {
         var elementID = generateRandomID(8);
         var defaultParams = {
@@ -27,9 +31,8 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                 addedAfterRowClass: "added-after-row",                   //css class to associate with new added rows
                 displayEmptyMessage: true,                               //define if empry message will be displayed
                 displayTableFooter: false,                               //define if table footer will be rendered
-                emptyTableMessage: "no data to display",                //empty message
-                emptyMessageRenderer: emptyMessageRendererFunction,     //default renderer for empty messages
-                errorMessageRenderer: errorMessageRendererFunction       //default renderer for error messages
+                emptyMessageRenderer: $this.renderingHelpers.emptyMessageRendererFunction,     //default renderer for empty messages
+                errorMessageRenderer: $this.renderingHelpers.errorMessageRendererFunction       //default renderer for error messages
             },
             language: {                                                  //localized strings for widget
                 paginate: {                                              //localized strings for pagination
@@ -39,7 +42,9 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
                     previous: "previous",                                //"previous" localized string
                     next: "next",                                        //"next" localized string
                     last: "last"                                         //"last" localized string
-                }
+                },
+                emptyTableMessage: "no data to display",                //empty message
+                errorGettingDataMessage: "error getting table data"     //empty message
             },
             paging: {                                                    //pagination definition for plugin
                 enablePaging: false,                                     //enables or disable paging
@@ -52,272 +57,91 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     };
 
     this.render = function (target) {
-        renderingHelpers.renderTableStructure(target, renderingHelpers.renderTableRows);
+        $this.renderingHelpers.renderTableStructure(target, $this.renderingHelpers.renderTableRows);
     };
 
-
-
-    var renderingHelpers = {
-        hasFooter: function () {
-            return $this.params.paging.enablePaging; //|| anotherFooterElement
-        },
-        renderTableStructure: function (target, renderRowsMethod) {
-            var sb = new StringBuilder();
-            sb.appendFormat('<table id="{1}" class="{0}">', $this.params.ui.tableClass, $this.params.ui.elementID);
-            renderingHelpers.renderTableHeader(sb);
-            sb.append('<tbody></tbody>');
-            if ($this.params.paging.enablePaging || $this.params.ui.displayTableFooter) {
-                renderingHelpers.renderTableFooter(sb);
+    this.gotoPage = function (page) {
+        var totalPages = $this.params.paging.totalPages;
+        var ensureValidPage = function (pg) {
+            var n = parseInt(pg);
+            if (isNaN(n)) {
+                return 1;
             }
-            sb.appendFormat('</table>');
-            $('#' + target).html(sb.toString());
-            if ($this.params.columns !== undefined) setupHelpers.setupSorting();
-            renderRowsMethod()
-        },
-        renderTableHeader: function (sb) {
-            if ($this.params.ui.renderTableHead) {
-                sb.append('<thead>');
-                renderingHelpers.renderTableHeaderContent(sb);
-                sb.append('</thead>');
-            }
-        },
-        renderTableHeaderContent: function (sb) {
-            if ($this.params.columns !== undefined) {
-                var plot = false;
-                if (sb == undefined) {
-                    plot = true;
-                    sb = new StringBuilder();
+            else {
+                if (n < 1) {
+                    return 1;
                 }
-                sb.append('<tr>');
-                $this.params.columns.forEach(function (col) {
-                    sb.appendFormat('<th{0} data-bindingsource="{1}">', internals.resolveHeaderClass(col), col.bindingSource || "");
-                    var renderer = rz.widgets.tableHelpers.getCellRenderer(col.headerRender || 'default');
-                    var value = col.headerText || col.bindingSource;
-                    sb.append(renderer(value, col));
-                    sb.append('</th>');
-                });
-                sb.append('</tr>');
-                if (plot) {
-                    $("#" + $this.params.ui.elementID + " thead").html(sb.toString());
-                    setupHelpers.setupSorting();
-                }
-            }
-        },
-        renderTableRows: function () {
-            getRows(function (data) {
-                if (internals.isEmptyResult(data)) {
-                    renderingHelpers.renderEmptyDataRow();
-                    renderingHelpers.removePagingToolBox();
+                else if (n > totalPages) {
+                    return totalPages;
                 }
                 else {
-                    var ds = internals.ensureDataSource(data);
-                    $this.params.paging.currentPage = ds.header.currentPage;
-                    $this.params.paging.totalPages = ds.header.totalPages;
-                    $this.rowsData = ds.rows;
-
-                    var defined = setupHelpers.ensureColumns($this.getRowData(0));
-                    if (defined) {
-                        renderingHelpers.renderTableHeaderContent();
-                    }
-                    renderingHelpers.renderAndPlotRows();
-                    renderingHelpers.renderPagingToolBox();
+                    return n;
                 }
-            });
-        },
-        renderAndPlotRows: function (isPostAddedRow) {
-            var sb = new StringBuilder();
-            $this.rowsData.forEach(function (it, rowIndex) {
-                it.__uid = generateRandomID(16);
-                sb.appendFormat('<tr{0}>', (isPostAddedRow) ? ' class="' + $this.params.ui.addedAfterRowClass + '"' : '');
-                $this.params.columns.forEach(function (col) {
-                    sb.appendFormat('<td{0}>', internals.resolveTDClass(col));
-                    internals.renderCellData($this, it, col, sb, rowIndex);
-                    sb.appendFormat('</td>');
-                });
-                sb.appendFormat('</tr>');
-            });
-            internals.plotOnBody(sb, "#" + $this.params.ui.elementID);
-        },
-        renderTableFooter: function (sb) {
-            if(renderingHelpers.hasFooter()){
-                sb.appendFormat('<tfoot><tr><td colspan="6000"></td></tr></tfoot>');
-            }
-        },
-        removePagingToolBox: function () {
-            var pagingToolboxID ="#" + $this.params.ui.elementID + "_paging_toolbox";
-            $(pagingToolboxID).remove();
-        },
-        renderPagingToolBox : function () {
-            if ($this.params.paging.enablePaging) {
-                var pagingToolboxID = $this.params.ui.elementID + "_paging_toolbox";
-                if($("#" + pagingToolboxID).length==1){
-                    var piid = "#@_paginginput".replace("@",$this.params.ui.elementID);
-                    var tpid = "#@_total_pages_el".replace("@",$this.params.ui.elementID);
-                    $(piid).val($this.params.paging.currentPage);
-                    $(tpid).html($this.params.paging.totalPages);
-                }
-                else{
-                    var sb = new StringBuilder();
-                    //sb.appendFormat('   <td colspan="{0}">', params.columns.length);
-
-                    sb.appendFormat('<div id="{0}" class="ui right floated pagination menu">',pagingToolboxID);
-                    sb.appendFormat('    <div style="padding: 10px 5px">{0} </div><input id="{4}_paginginput" type="text" style="width: 60px;text-align: center;border: none;outline: none;" value="{2}" data-paging-action="specific"> <span style="padding: 10px 5px">{1}</span> <span style="padding: 10px 5px" id="{4}_total_pages_el">{3}</span>',
-                        $this.params.language.paginate.page,
-                        $this.params.language.paginate.of,
-                        $this.params.paging.currentPage,
-                        $this.params.paging.totalPages,
-                        $this.params.ui.elementID
-                    );
-                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="first"><i class="double angle left icon"></i></a>', $this.params.language.paginate.first, $this.params.ui.elementID);
-                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="previous"><i class="angle left icon"></i></a>', $this.params.language.paginate.previous, $this.params.ui.elementID);
-                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="next"><i class="angle right icon"></i></a>', $this.params.language.paginate.next, $this.params.ui.elementID);
-                    sb.appendFormat('    <a class="icon item {1}-paging-button" title="{0}" data-paging-action="last"><i class="double angle right icon"></i></a>', $this.params.language.paginate.last, $this.params.ui.elementID);
-                    sb.appendFormat('</div>');
-
-                    //sb.appendFormat('    </td>');
-                    $("#" + $this.params.ui.elementID + " tfoot > tr > td").html(sb.toString());
-                    setupHelpers.setupPaging();
-                }
-            }
-
-        },
-        renderEmptyDataRow: function () {
-            if ($this.params.ui.displayEmptyMessage) {
-                var sb = new StringBuilder();
-                var ccount = ($this.params.columns !== undefined) ? $this.params.columns.length || 1 : 1;
-                sb.appendFormat('<tr class="empty-row"><td colspan="{0}">{1}</td></tr>', ccount.toString(),
-                    $this.params.ui.emptyMessageRenderer($this.params.ui.emptyTableMessage)
-                );
-                internals.plotOnBody(sb, "#" + $this.params.ui.elementID);
-            }
-        }
-    };
-
-    var setupHelpers = {
-        ensureColumns: function (dataRow) {
-            if ($this.params.columns === undefined) {
-                var keys = Object.keys(dataRow);
-                $this.params.columns = [];
-                keys.forEach(function (it) {
-                    var columnDefinition = {
-                        bindingSource: it,
-                        renderer: "text"
-                    };
-                    $this.params.columns.push(columnDefinition);
-                });
-                return true;
-            }
-            else {
-                return false;
-            }
-        },
-        setupSorting: function () {
-            if ($this.params.ui.allowSorting) {
-                $("#" + $this.params.ui.elementID).addClass("sortable");
-                $("#" + $this.params.ui.elementID + " th").click(function (e) {
-                    var el = $(e.currentTarget);
-                    var bs = el.data("bindingsource");
-                    if (!el.hasClass("unsortable")) {
-                        var isAscending = el.hasClass("sorted ascending");
-                        $("#" + $this.params.ui.elementID + " th").removeClass("sorted ascending descending");
-                        var cssClass = (isAscending) ? "sorted descending" : "sorted ascending";
-                        el.addClass(cssClass);
-                        if (bs != "") {
-                            $this.sorting.sortCol = bs;
-                            $this.sorting.sortDir = (isAscending) ? "desc" : "asc";
-                            $this.params.paging.currentPage = 1;
-                            renderingHelpers.renderTableRows();
-                        }
-                    }
-                });
-            }
-        },
-        setupPaging: function () {
-            var baseid = $this.params.ui.elementID;
-            var inputID = "#" + baseid + "_paginginput";
-            var btCL = "." + baseid + "-paging-button";
-            var doPagingAction = function (src) {
-                var action = $(src.currentTarget).data("paging-action");
-                switch (action) {
-                    case "first":
-                    case "previous":
-                    case "next":
-                    case "last":
-                        $this.gotoPage(action);
-                        break;
-                    case "specific":
-                        $this.gotoPage($(inputID).val());
-                        break;
-                }
-            };
-            $(btCL).click(doPagingAction);
-            $(inputID).keyup(function (e) {
-                if (e.keyCode == 13) {
-                    doPagingAction(e);
-                }
-            });
-        }
-    };
-
-    var getRows = function (callback) {
-        var getDataCallback = function (result, status, info) {
-            if (status == "error") {
-                console.error("error getting rows data:", info || {});
-                //renderError()
-            }
-            else {
-                callback(result);
             }
         };
+        var currentPage = $this.params.paging.currentPage;
 
-        if ($this.params.tableData.dataSource !== undefined) {
-            var dsType = typeof $this.params.tableData.dataSource;
-            if (dsType == "function") {
-                var p = {
-                    paging: $this.params.paging,
-                    filter: $this.filter,
-                    sorting: $this.sorting
-                };
-                $this.params.tableData.dataSource(p, getDataCallback);
-            }
-            else if (dsType == "string") {
-                var url = $this.params.tableData.dataSource;
-                //paging
-                url = rz.utils.uri.mergeParam(url, "paging", $this.params.paging.enablePaging);
-                url = rz.utils.uri.mergeParam(url, "curpage", $this.params.paging.currentPage);
-                url = rz.utils.uri.mergeParam(url, "psize", $this.params.paging.pageSize);
-                //sorting
-                url = rz.utils.uri.mergeParam(url, "sortcol", $this.sorting.sortCol);
-                url = rz.utils.uri.mergeParam(url, "sortdir", $this.sorting.sortDir);
-                //filtering
-                url = rz.utils.uri.mergeParam(url, "filter", btoa(JSON.stringify($this.filter)));
-                ruteZangada.get(url, getDataCallback);
-            }
-            else {
-                console.error("invalid data source type: ", dsType);
-                //renderError()
-            }
+        switch (page) {
+            case "first":
+                $this.params.paging.currentPage = 1;
+                break;
+            case "previous":
+                $this.params.paging.currentPage = ensureValidPage($this.params.paging.currentPage - 1);
+                break;
+            case "next":
+                $this.params.paging.currentPage = ensureValidPage($this.params.paging.currentPage + 1);
+                break;
+            case "last":
+                $this.params.paging.currentPage = totalPages;
+                break;
+            default:
+                $this.params.paging.currentPage = ensureValidPage(page);
+                break;
         }
-        else {
-            renderingHelpers.renderEmptyDataRow();
+        if (currentPage !== $this.params.paging.currentPage) {
+            $this.renderingHelpers.renderTableRows();
         }
     };
 
+    this.getRowData = function (position) {
+        var tprd = $this.rowsData;
+        return (tprd !== undefined && tprd.length > position) ? tprd[position] : undefined;
+    };
+
+    this.getRowCount = function () {
+        return $('#' + this.params.ui.elementID + ' tbody > tr').length;
+    };
+
+    this.clear = function (removeColumns) {
+        $('#' + $this.params.ui.elementID + ' tbody').empty();
+        $('#' + $this.params.ui.elementID + ' thead th').removeClass("sorted");
+        $this.renderingHelpers.removePagingToolBox();
+        if ($this.params.ui.displayEmptyMessage) {
+            $this.renderingHelpers.renderEmptyDataRow();
+        }
+        $this.rowsData = [];
+        if(removeColumns){
+            $('#' + $this.params.ui.elementID + ' thead').empty();
+            //$this.params.columns = undefined;
+        }
+    };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 
     //todo implementar em ruteZangada após a renderização do widget (widgetRendered_event
-    var executeAfterRenderScripts = function (bypassSetupHeaders) {
-        postRenderScripts.forEach(function (it) {
-            it();
-        });
-        postRenderScripts = [];
-        if (!bypassSetupHeaders) {
-            setupSortableTable();
-            setupPaging();
-        }
-    };
+    /*
+     var executeAfterRenderScripts = function (bypassSetupHeaders) {
+     postRenderScripts.forEach(function (it) {
+     it();
+     });
+     postRenderScripts = [];
+     if (!bypassSetupHeaders) {
+     setupSortableTable();
+     setupPaging();
+     }
+     };
+     */
 
     /*var renderRowsData = function (target, params, onlyRows) {
      var sb = new StringBuilder();
@@ -346,14 +170,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         postRenderScripts.push(f);
     };
 
-    var emptyMessageRendererFunction = function (message) {
-        return '<h1>*</h1>'.replace("*", message);
-    };
-
-    var errorMessageRendererFunction = function () {
-        return '<tbody><tr><td class="error-message">error getting server data</td></tr></tbody>';
-    };
-
     /*
      var renderTableHead = function (sb, params) {
      if (params.renderTableHead) {
@@ -371,7 +187,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
      sb.append('</thead>');
      }
      };
-     */
+
 
 
     var renderTableBody = function (sb, params) {
@@ -381,7 +197,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
         else {
             if ($this.params.displayEmptyMessage) {
-                renderingHelpers.renderEmptyDataRow(sb);
+                $this.renderingHelpers.renderEmptyDataRow(sb);
             }
         }
         sb.append('</tbody>');
@@ -456,6 +272,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             sb.appendFormat('</tr>');
         });
     };
+    */
 
     /*var ensureColumns = function () {
      if ($this.params.columns === undefined) {
@@ -550,9 +367,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
      */
     //endregion
 
-    this.getRowCount = function () {
-        return $('#' + this.params.elementID + ' tbody > tr').length;
-    };
+
 
     this.addRows = function (rowData) {
         var html = getNewRowHTML(rowData);
@@ -584,21 +399,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             removeEmptyDataRow();
             removeChangeAnimationClass();
         }
-    };
-
-    this.getRowData = function (position) {
-        var tprd = $this.rowsData;
-        return (tprd !== undefined && tprd.length > position) ? tprd[position] : undefined;
-    };
-
-    this.clear = function () {
-        $('#' + this.params.elementID + ' tbody').empty();
-        if ($this.params.displayEmptyMessage) {
-            var sb = new StringBuilder();
-            renderingHelpers.renderEmptyDataRow(sb);
-            $('#' + this.params.elementID + ' tbody').append(sb.toString());
-        }
-        $this.params.rowsData = [];
     };
 
     this.sort = function (sortData) {
@@ -719,65 +519,5 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
     };
 
-    this.gotoPage = function (page) {
-        var totalPages = $this.params.paging.totalPages;
-        var ensureValidPage = function (pg) {
-            var n = parseInt(pg);
-            if (isNaN(n)) {
-                return 1;
-            }
-            else {
-                if (n < 1) {
-                    return 1;
-                }
-                else if (n > totalPages) {
-                    return totalPages;
-                }
-                else {
-                    return n;
-                }
-            }
-        };
-        var currentPage = $this.params.paging.currentPage;
 
-        switch (page) {
-            case "first":
-                $this.params.paging.currentPage = 1;
-                break;
-            case "previous":
-                $this.params.paging.currentPage = ensureValidPage($this.params.paging.currentPage - 1);
-                break;
-            case "next":
-                $this.params.paging.currentPage = ensureValidPage($this.params.paging.currentPage + 1);
-                break;
-            case "last":
-                $this.params.paging.currentPage = totalPages;
-                break;
-            default:
-                $this.params.paging.currentPage = ensureValidPage(page);
-                break;
-        }
-        if (currentPage !== $this.params.paging.currentPage) {
-            renderingHelpers.renderTableRows();
-            /*
-             var pSize = params.paging.pageSize;
-             var curPage = params.paging.currentPage;
-             var startIndex = (curPage -1) * pSize;
-             var endIndex = startIndex + pSize;
-             return rowData.slice(startIndex,endIndex);
-
-            -----------------------------------------------
-            var p = {
-                paging: {
-                    pageSize: $this.params.paging.pageSize,
-                    currentPage: currentPage
-                }
-            };
-            var pgData = getDataPage($this.params.rowsData, p);
-            $this.params.rowsData = pgData;
-            $(inputID).val($this.params.paging.currentPage);
-            $this.refresh();
-             */
-        }
-    }
 });

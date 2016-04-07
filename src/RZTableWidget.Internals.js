@@ -2,7 +2,7 @@
  * Created by anderson.santos on 06/04/2016.
  */
 rz.widgets.RZTableWidgetHelpers.Internals = {
-    resolveHeaderClass : function (col) {
+    resolveHeaderClass: function (col) {
         var classData = "";
         //column size
         if (col.size !== undefined) {
@@ -13,19 +13,19 @@ rz.widgets.RZTableWidgetHelpers.Internals = {
         if (align != "left") {
             classData += align + " aligned "
         }
-        if(col.sortable===undefined) col.sortable=true;
-        if(!col.sortable){
+        if (col.sortable === undefined) col.sortable = true;
+        if (!col.sortable) {
             classData += " unsortable ";
         }
         return (classData != "") ? ' class="' + classData + '"' : "";
     },
-    plotOnBody : function (sb, target,preserve) {
-        if(!preserve){
+    plotOnBody: function (sb, target, preserve) {
+        if (!preserve) {
             $(target + " tbody").empty();
         }
         $(target + " tbody").html(sb.toString());
     },
-    getServerData : function (target, params) {
+    getServerData: function (target, params) {
         ruteZangada.get(params.rowsData, function (d, r) {
             if (r == "success") {
                 var url = params.rowsData;
@@ -40,31 +40,31 @@ rz.widgets.RZTableWidgetHelpers.Internals = {
         });
     },
     isEmptyResult: function (r) {
-        return !(r!==undefined && (r.length > 0 ||(r.rows!==undefined && r.rows.length > 0)));
+        return !(r !== undefined && (r.length > 0 || (r.rows !== undefined && r.rows.length > 0)));
     },
-    ensureDataSource:function(dataRows){
+    ensureDataSource: function (dataRows) {
         /*ensures dataRows with the following format:
-        {
-            header:{},
-            rowsData:[]
-        }
-        */
-        if(dataRows.header!==undefined && dataRows.rows !==undefined){
+         {
+         header:{},
+         rowsData:[]
+         }
+         */
+        if (dataRows.header !== undefined && dataRows.rows !== undefined) {
             return dataRows;
         }
-        else{
+        else {
             return {
-                header:{
-                    currentPage:1,
-                    totalPages:1,
-                    sortColumn:"",
-                    sortDir:""
+                header: {
+                    currentPage: 1,
+                    totalPages: 1,
+                    sortColumn: "",
+                    sortDir: ""
                 },
-                rows:dataRows
+                rows: dataRows
             }
         }
     },
-    resolveTDClass : function (col) {
+    resolveTDClass: function (col) {
         var classData = "";
         //column alignement
         if (col.alignment !== undefined && col.alignment != "left") {
@@ -72,9 +72,8 @@ rz.widgets.RZTableWidgetHelpers.Internals = {
         }
         return (classData != "") ? ' class="' + classData + '"' : "";
     },
-    renderCellData : function ($this,rowData, colData, sb, rowIndex) {
+    renderCellData: function ($this, rowData, colData, sb, rowIndex) {
         var renderer = rz.widgets.tableHelpers.getCellRenderer(colData.cellRenderer || 'default');
         sb.append(renderer(rowData[colData.bindingSource], rowData, colData, $this, rowIndex));
     }
-
 };

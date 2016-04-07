@@ -9,6 +9,9 @@ module.exports = function (grunt) {
                     "src/InterfaceAndEvents.js",
                     "src/TableHelpers.js",
                     "src/RZTableWidget.Sorting.js",
+                    "src/RZTableWidget.renderingHelpers.js",
+                    "src/RZTableWidget.setupHelpers.js",
+                    "src/RZTableWidget.runtimeHelpers.js",
                     "src/RZTableWidget.Internals.js",
                     "src/CellRenderers/*.js",
                     "src/RZTableWidget.js"

@@ -140,17 +140,26 @@
         /***********PAGING************************/
 
         //padrão esperado
-        callback({
-            header:{
-                currentPage:p.paging.currentPage,
-                totalPages:totalPages,
-                sortColumn:"",
-                sortDir:""
-            },
-            rows:srdata
-        },"success");
-    };
+        var resultType = "normal";
 
+        if(resultType=="normal"){
+            callback({
+                header:{
+                    currentPage:p.paging.currentPage,
+                    totalPages:totalPages,
+                    sortColumn:"",
+                    sortDir:""
+                },
+                rows:srdata
+            },"success");
+        }
+        else if(resultType=="empty"){
+            callback(undefined,"sucess");
+        }
+        else if(resultType=="error"){
+            callback(undefined,"error");
+        }
+    };
 
     var p2 = {
         ui: {

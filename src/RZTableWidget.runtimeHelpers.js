@@ -1,0 +1,49 @@
+/**
+ * Created by anderson.santos on 07/04/2016.
+ */
+rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
+    var $this = t;
+    this.getRows= function (callback) {
+        var getDataCallback = function (result, status, info) {
+            if (status == "error") {
+                console.error("error getting table rows with:","result: ", result,"info: ",info);
+                $this.renderingHelpers.renderErrorDataRow();
+                //renderError()
+            }
+            else {
+                callback(result);
+            }
+        };
+        if ($this.params.tableData.dataSource !== undefined) {
+            var dsType = typeof $this.params.tableData.dataSource;
+            if (dsType == "function") {
+                var p = {
+                    paging: $this.params.paging,
+                    filter: $this.filter,
+                    sorting: $this.sorting
+                };
+                $this.params.tableData.dataSource(p, getDataCallback);
+            }
+            else if (dsType == "string") {
+                var url = $this.params.tableData.dataSource;
+                //paging
+                url = rz.utils.uri.mergeParam(url, "paging", $this.params.paging.enablePaging);
+                url = rz.utils.uri.mergeParam(url, "curpage", $this.params.paging.currentPage);
+                url = rz.utils.uri.mergeParam(url, "psize", $this.params.paging.pageSize);
+                //sorting
+                url = rz.utils.uri.mergeParam(url, "sortcol", $this.sorting.sortCol);
+                url = rz.utils.uri.mergeParam(url, "sortdir", $this.sorting.sortDir);
+                //filtering
+                url = rz.utils.uri.mergeParam(url, "filter", btoa(JSON.stringify($this.filter)));
+                ruteZangada.get(url, getDataCallback);
+            }
+            else {
+                console.error("invalid data source type: ", dsType);
+                $this.renderingHelpers.renderErrorDataRow();
+            }
+        }
+        else {
+            $this.renderingHelpers.renderEmptyDataRow();
+        }
+    }
+};
