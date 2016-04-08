@@ -60,6 +60,16 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.renderingHelpers.renderTableStructure(target, $this.renderingHelpers.renderTableRows);
     };
 
+    this.sort = function (column,direction) {
+        direction =  direction || "asc";
+        $this.sorting = {
+            sortCol:column,
+            sortDir:direction
+        };
+        $this.params.paging.currentPage=1;
+        $this.refresh();
+    };
+
     this.gotoPage = function (page) {
         var totalPages = $this.params.paging.totalPages;
         var ensureValidPage = function (pg) {
@@ -122,9 +132,16 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.rowsData = [];
         if(removeColumns){
             $('#' + $this.params.ui.elementID + ' thead').empty();
-            //$this.params.columns = undefined;
+            $this.needsToReacreateColumn = true;
         }
     };
+
+    this.refresh = function () {
+        $this.renderingHelpers.renderTableRows();
+    };
+
+
+
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -378,14 +395,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         removeChangeAnimationClass();
     };
 
-    this.refresh = function () {
-        var html = getNewRowHTML($this.params.rowsData, true);
-        $('#' + this.params.elementID + ' tbody').empty();
-        $('#' + this.params.elementID + ' tbody').append(html);
-        executeAfterRenderScripts(true);
-        removeEmptyDataRow();
-        removeChangeAnimationClass();
-    };
 
     this.insertRows = function (position, rowData) {
         if (position < 0 || position >= this.getRowCount()) {
@@ -398,52 +407,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             executeAfterRenderScripts(true);
             removeEmptyDataRow();
             removeChangeAnimationClass();
-        }
-    };
-
-    this.sort = function (sortData) {
-        var colData = sortingHelper.findColData({prop: "bindingSource", value: sortData.column}, $this);
-        if ($this.dataSourceLocation == "local") {
-            $this.gotoPage("first");
-            if (sortData.sortDir == "asc") {
-                if (colData.sortAscMethod !== undefined) {
-                    $this.params.rowsData.sort(colData.sortAscMethod);
-                }
-                else {
-                    var columnToSort = sortData.column;
-                    $this.params.rowsData.sort(sortingHelper.sortAscMethod($this, columnToSort));
-                }
-            }
-            else {
-                if (colData.sortAscMethod !== undefined) {
-                    $this.params.rowsData.sort(colData.sortDescMethod);
-                }
-                else {
-                    var columnToSort = sortData.column;
-                    $this.params.rowsData.sort(sortingHelper.sortDescMethod($this, columnToSort));
-                }
-            }
-            //$('#' + this.params.elementID + ' tbody').empty();
-            $this.refresh();
-        }
-        else {
-            var originalURL = $this.params.sourceURL;
-            $this.sortColumn = sortData.sortColumn;
-            $this.sortDir = sortData.sortDir;
-            var paramObj = getTableRequestParams();
-            var pstr = btoa(JSON.stringify(paramObj));
-            var url = rz.utils.uri.mergeParam(originalURL, "tableParams", pstr);
-
-            ruteZangada.get(url, function (d, r) {
-                if (r == "success") {
-                    $this.params.rowsData = d;
-                    $('#' + $this.params.elementID + ' tbody').empty();
-                    $this.refresh();
-                }
-                else {
-                    $("#" + params.elementID).append(params.errorMessageRenderer());
-                }
-            });
         }
     };
 

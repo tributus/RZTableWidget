@@ -17,8 +17,7 @@ rz.widgets.RZTableWidgetHelpers.setupHelpers = function (t) {
             return true;
         }
         else {
-            var length = $("#" + $this.params.ui.elementID + "thead > tr > th").length;
-            return length == 0;
+            return false;
         }
     };
     this.setupSorting = function () {

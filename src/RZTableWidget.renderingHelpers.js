@@ -63,8 +63,9 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
                 $this.rowsData = ds.rows;
 
                 var defined = $this.setupHelpers.ensureColumns($this.getRowData(0));
-                if (defined) {
+                if (defined || $this.needsToReacreateColumn) {
                     that.renderTableHeaderContent();
+                    $this.needsToReacreateColumn = false;
                 }
                 that.renderAndPlotRows();
                 that.renderPagingToolBox();
