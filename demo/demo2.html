@@ -9,7 +9,29 @@
     <link rel="stylesheet" type="text/css" href="../bower_components/semantic/dist/semantic.min.css">
     <script src="../dist/RZTableWidget.js"></script>
     <style>
+        /*SHOW CASE STYLES*/
+        .opt{
+            border: solid 1px gray;
+            padding: 0;
+            margin: 5px;
+            width: 30%;
+            display: table;
+        }
+        .param-area,.action-area{
+            display: table-cell;
+            padding: 4px;
+            background: #f3f3f3;
+        }
+        .action-area {
+            width: 150px;
+            vertical-align: middle;
+        }
+        .action-area button{
+            width: 100%;
+        }
 
+    </style>
+    <style>
         @-webkit-keyframes animation {
             0% {
                 background: none;
@@ -54,13 +76,80 @@
 </head>
 <body>
 <h1>Column definitions</h1>
-
-<input id="i1" value="0">
-<button id="b2">getRowData</button>
-<button id="b1">addRow</button>
-<button id="b3">insertRows</button>
-<button id="b4">clear</button>
-<button id="b5">change</button>
+<div class="opt">
+    <div class="action-area">
+        <button>refresh</button>
+    </div>
+    <div class="param-area"></div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>clear</button>
+    </div>
+    <div class="param-area">
+        <div>
+            <input type="checkbox" id="chkCcol" name="chkCcol"> <label for="chkCcol">Limpar colunas</label>
+        </div>
+        <div>
+            <input type="checkbox" id="chkCcolDef" name="chkCcol"> <label for="chkCcol">Limpar definição de colunas</label>
+        </div>
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>getRowCount</button>
+    </div>
+    <div class="param-area">
+        <label id="rcresult"></label>
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>getRowData</button>
+    </div>
+    <div class="param-area">
+        <input type="text" id="ip1" placeholder="posição">
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>addRows</button>
+    </div>
+    <div class="param-area">
+        <input type="text" id="ipn" placeholder="name">
+        <input type="text" id="ipa" placeholder="age">
+        <input type="text" id="ipg" placeholder="gender">
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>insertRows</button>
+    </div>
+    <div class="param-area">
+        <input type="text" id="iipp" placeholder="position" value="0">
+        <input type="text" id="iipn" placeholder="name">
+        <input type="text" id="iipa" placeholder="age">
+        <input type="text" id="iipg" placeholder="gender">
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>gotoPage</button>
+    </div>
+    <div class="param-area">
+        <input type="text" id="pg" placeholder="f,p,n,l or page number">
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>changeCellData</button>
+    </div>
+    <div class="param-area">
+        <input type="text" id="cr" placeholder="position">
+        <input type="text" id="cn" placeholder="cell name">
+        <input type="text" id="cv" placeholder="new value">
+    </div>
+</div>
 <button id="b6">filter</button>
 <br><br>
 <textarea id="filterta" placeholder="filter expression">[{"description":"Homens","field": "gender","operator": "equals","value":"\"m\""}]</textarea>
@@ -195,6 +284,18 @@
                 sortDescMethod: function (a, b) {
                     return sortGender(b, a);
                 }
+            },
+            {
+                sortable: false,
+                cellRenderer: "actions-renderer",
+                actions: [
+                    {action: "action1", label: "Action 1"},
+                    {action: "action2", label: "Action 2"},
+                    {action: "action3", label: "Action 3"}
+                ],
+                clickHandler: function (action, rowData, rowIndex) {
+                    console.log(action, "for", rowData, "at", rowIndex, "row");
+                }
             }
             //,{cellRenderer: 'actions-renderer'}
         ],
@@ -218,56 +319,79 @@
         }
     };
 
-    //p2.rowsData = srdata;
-
     var wi2 = ruteZangada.renderWidget("rz-table", "tc2", p2);
 
     function genderCustomRenderer(value, full) {
         return (value == "m") ?
-                '<span style="color:blue">Masculino</span>' :
-                '<span style="color:pink">Feminino</span>';
+                '<span style="color:#59a9ff">Masculino</span>' :
+                '<span style="color:#ff79f3">Feminino</span>';
     }
 
     function headerCustomRenderer(value, full) {
         return '<span>' + value + ' <i class="heterosexual icon"></i></span>';
     }
 
-    $("#b1").click(function () {
-        var rowsData = [
-            {name: "anabelle", age: 64, gender: "f"},
-            {name: "gabrielle", age: 32, gender: "f"},
-            {name: "isabelle", age: 28, gender: "f"}
-        ];
-        wi2.addRows(rowsData);
+    var actions = [];
+    actions["clear"] = function () {
+        var ccol = $("#chkCcol").prop("checked");
+        var ccoldef = $("#chkCcolDef").prop("checked");
+        wi2.clear(ccol,ccoldef);
+    };
+    actions["refresh"] = function () {
+        wi2.refresh();
+    };
+    actions["getRowCount"] = function () {
+        $("#rcresult").text(wi2.getRowCount());
+    };
+    actions["getRowData"] = function(){
+        var r = wi2.getRowData($("#ip1").val());
+        console.log(r);
+        alert(JSON.stringify(r));
+    };
+
+    actions["addRows"] = function () {
+      var newRow = {};
+        newRow.name = $("#ipn").val();
+        newRow.age = $("#ipa").val();
+        newRow.gender = $("#ipg").val();
+        if(isNaN(parseInt(newRow.age))) newRow.age=0;
+        if(newRow.gender !='m' && newRow.gender !='f') newRow.gender='f';
+
+        $("#ipn,#ipa,#ipg").val('');
+
+        wi2.addRows(newRow);
+    };
+
+    actions["insertRows"] = function () {
+        var newRow = {};
+        var pos = $("#iipp").val();
+        newRow.name = $("#iipn").val();
+        newRow.age = $("#iipa").val();
+        newRow.gender = $("#iipg").val();
+        if(isNaN(parseInt(newRow.age))) newRow.age=0;
+        if(isNaN(parseInt(pos))) pos=0;
+        if(newRow.gender !='m' && newRow.gender !='f') newRow.gender='f';
+        $("#iipn,#iipa,#iipg,#iipp").val('');
+        wi2.insertRows(pos,newRow);
+    };
+
+    actions["gotoPage"] = function () {
+        var pg = $("#pg").val();
+        wi2.gotoPage(pg);
+    };
+
+    actions["changeCellData"] = function(){
+        var pos = $("#cr").val();
+        name = $("#cn").val();
+        value = $("#cv").val();
+        wi2.changeCellData(pos,name,value);
+
+    };
+
+    $(".action-area button").click(function (t) {
+        var action = $(t.currentTarget).text();
+        actions[action]();
     });
-
-    $("#b2").click(function () {
-        var pos = parseInt($("#i1").val());
-        console.log("data:", wi2.getRowData(pos));
-    });
-
-    $("#b3").click(function () {
-        var pos = parseInt($("#i1").val());
-        var newRow = {name: "new inserted row", age: parseInt(Math.random() * 100), gender: "f"};
-        wi2.insertRows(pos, newRow);
-    });
-
-    $("#b4").click(function () {
-        wi2.clear();
-    });
-    var i = 0;
-    $("#b5").click(function () {
-        var s = ['m', 'f'];
-        i = 1 - i;
-        wi2.changeCellData(0, "gender", s[1 - i]);
-    });
-
-    $("#b6").click(function () {
-        var f = JSON.parse($("#filterta").val());
-        wi2.filter(f);
-
-    });
-
-
 </script>
+
 </html>

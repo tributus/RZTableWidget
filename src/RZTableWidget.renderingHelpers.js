@@ -63,20 +63,22 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
                 $this.rowsData = ds.rows;
 
                 var defined = $this.setupHelpers.ensureColumns($this.getRowData(0));
-                if (defined || $this.needsToReacreateColumn) {
+                if (defined || $this.recreateFromOriginalDefinition) {
                     that.renderTableHeaderContent();
-                    $this.needsToReacreateColumn = false;
+                    $this.recreateFromOriginalDefinition = false;
                 }
                 that.renderAndPlotRows();
                 that.renderPagingToolBox();
             }
+            $this.runtimeHelpers.executePostRenderScripts();
         });
     };
-    this.renderAndPlotRows = function (isPostAddedRow) {
+    this.renderAndPlotRows = function (isPostAddedRow,rowsSource,preserveActualRows,position) {
+        var rows = rowsSource || $this.rowsData;
         var sb = new StringBuilder();
-        $this.rowsData.forEach(function (it, rowIndex) {
+        rows.forEach(function (it, rowIndex) {
             it.__uid = generateRandomID(16);
-            sb.appendFormat('<tr{0}>', (isPostAddedRow) ? ' class="' + $this.params.ui.addedAfterRowClass + '"' : '');
+            sb.appendFormat('<tr{0} data-refid="{1}">', (isPostAddedRow) ? ' class="' + $this.params.ui.addedAfterRowClass + '"' : '',it.__uid);
             $this.params.columns.forEach(function (col) {
                 sb.appendFormat('<td{0}>', $this.internals.resolveTDClass(col));
                 $this.internals.renderCellData($this, it, col, sb, rowIndex);
@@ -84,7 +86,7 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
             });
             sb.appendFormat('</tr>');
         });
-        $this.internals.plotOnBody(sb, "#" + $this.params.ui.elementID);
+        $this.internals.plotOnBody(sb, "#" + $this.params.ui.elementID,preserveActualRows,position);
     };
     this.renderTableFooter = function (sb) {
         if (that.hasFooter()) {
@@ -152,5 +154,31 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
     };
     this.errorMessageRendererFunction = function () {
         return '<div class="error-message">error getting server data</div>';
+    };
+    this.removeEmptyDataRow = function () {
+        $(".empty-row").detach();
+    };
+    this.removeErrorRow = function () {
+        $(".error-row").detach();
+    };
+    this.removeAfterAddedRowsClass = function () {
+        setTimeout(function () {
+            $("#" + $this.params.ui.elementID + " tbody > tr").removeClass("added-after-row");
+        }, 500);
+
+    };
+    this.renderChangedCell = function(cInfo,rd,position){
+        var row = $('#' + $this.params.ui.elementID + ' tbody > tr')[position];
+        var sb = new StringBuilder();
+        $this.internals.renderCellData($this,rd, cInfo.cellData, sb,position);
+        $($(row).children("td")[cInfo.index]).html(sb.toString());
+        var tTd = $($(row).children("td")[cInfo.index]);
+        tTd.removeClass("changed-cell-1");
+        tTd.addClass("changed-cell-1");
+        setTimeout(function () {
+            tTd.removeClass("changed-cell-1");
+        }, 500);
+
     }
+
 };

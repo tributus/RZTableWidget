@@ -18,7 +18,7 @@ rz.widgets.tableHelpers.createCellRenderer("actions-renderer", function (value, 
     sb.append('  </div>');
     sb.append('</div>');
 
-    targetInstance.registerAfterRenderScript(function () {
+    targetInstance.runtimeHelpers.enqueuePostRenderScript(function () {
         //full.__uid targetInstance.params.elementID
         var selector1 = '#' + targetInstance.params.elementID + '-' + full.__uid;
         $(selector1).dropdown(
@@ -26,7 +26,7 @@ rz.widgets.tableHelpers.createCellRenderer("actions-renderer", function (value, 
                 action: "hide",
                 onChange: function(action) {
                     var rowRef = $(this).data("rowref");
-                    var rowData = targetInstance.params.rowsData.find(function(it){return it.__uid==rowRef});
+                    var rowData = targetInstance.rowsData.find(function(it){return it.__uid==rowRef});
                     columnDef.clickHandler(action,rowData,rowRef);
             }}
         );

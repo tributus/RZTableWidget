@@ -3,7 +3,8 @@
  */
 rz.widgets.RZTableWidgetHelpers = {
     TableWidgetInterface:[
-        {name:"addRows", description:"Adiciona uma ou mais linhas à tabela", friendlyName:"Adicionar linhas",
+        {
+            name:"addRows", description:"Adiciona uma ou mais linhas à tabela", friendlyName:"Adicionar linhas",
             params:[
                 {
                     name:"rowData",
@@ -113,6 +114,11 @@ rz.widgets.RZTableWidgetHelpers = {
                     type:"object"
                 }
             ]
+        },
+        {
+            name:"refresh",
+            friendlyName:"Atualizar",
+            description:"Atualiza o conteúdo da página"
         }
     ]
 };

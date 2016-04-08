@@ -7,6 +7,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     var $this = this;
     $this.sorting = {sortCol: "", sortDir: ""};
     $this.filter = {};
+    $this.postRenderScripts = [];
 
     //helpers
     $this.internals = rz.widgets.RZTableWidgetHelpers.Internals;
@@ -70,6 +71,13 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.refresh();
     };
 
+    /**
+     * Navega para uma página específica da tabela.
+     * @param page
+     * Página desejada. Os valores aceitáveis são "first","previous", "next", "last" ou um número de página
+     * Quando um valor menor que 1 é informado, a tabela navega para a primeira página
+     * Quando um valor maior que a quantidade de páginas é informada, a tabela navega para a última página
+     */
     this.gotoPage = function (page) {
         var totalPages = $this.params.paging.totalPages;
         var ensureValidPage = function (pg) {
@@ -92,15 +100,19 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         var currentPage = $this.params.paging.currentPage;
 
         switch (page) {
+            case "f":
             case "first":
                 $this.params.paging.currentPage = 1;
                 break;
+            case "p":
             case "previous":
                 $this.params.paging.currentPage = ensureValidPage($this.params.paging.currentPage - 1);
                 break;
+            case "n":
             case "next":
                 $this.params.paging.currentPage = ensureValidPage($this.params.paging.currentPage + 1);
                 break;
+            case "l":
             case "last":
                 $this.params.paging.currentPage = totalPages;
                 break;
@@ -113,35 +125,145 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
     };
 
+    /**
+     * retorna o objeto de dado associado com uma linha da tabela (local apenas)
+     * @param position
+     * posição (linha) da qual o valor será retornado
+     * @returns {*}
+     */
     this.getRowData = function (position) {
-        var tprd = $this.rowsData;
-        return (tprd !== undefined && tprd.length > position) ? tprd[position] : undefined;
+        var p = parseInt(position);
+        var r = $("#" + $this.params.ui.elementID + " tbody > tr")[position];
+        if(r!==undefined){
+            var refid = $(r).data("refid");
+            if(refid!==undefined){
+                return ($this.rowsData===undefined)?undefined:$this.rowsData.find(function(i){return i.__uid==refid});
+            }
+            else{
+                return undefined;
+            }
+        }
     };
 
+    /**
+     * Retorna a quantidade de linhas da tabela (considera apenas as linhas exibidas localmente)
+     * @returns {number|jQuery}
+     */
     this.getRowCount = function () {
         return $('#' + this.params.ui.elementID + ' tbody > tr').length;
     };
 
-    this.clear = function (removeColumns) {
+    /**
+     * Limpa a tabela removendo todas as suas linhas.
+     * @param removeColumns
+     * [opcional] Quando true, remove as colunas, mantendo apenas a estrutura básica da tabela.
+     * <table>
+     *     <thead></thead>
+     *     <tbody></tbody>
+     * </table>
+     * Caso este valor não seja informado ou seja false, apenas as linhas da tabela são removidas.
+     * @param removeColumnDefinitions
+     * Quando true, remove a definição das colunas da tabela (forçando a recriação das colunas com
+     * base em objetos que serão incluídos na mesma posteriormente).
+     * A definição das colunas é utilizada pelo widget para construir as colunas da tabela durante
+     * a atualização dos dados. Esta definição pode ser passada via parâmetro de inicialização
+     * (params.columns). Quando a mesma não é passada  na inicialização, o widget o cria durante
+     * a renderização da tabela, baseado nas propriedades dos objetos que estão sendo inseridos na tabela
+     * (O primeiro item da coleção serve de base).
+     * Esta definição e a renderização das colunas é feita apenas na primeira renderização da tabela. Assim,
+     * se a definição for removida neste método, as colunas serão recriadas no caso de uma posterior inclusão
+     * de dados na tabela
+     *
+     * este parâmetro só é considerado quando removeColumns=true
+     */
+    this.clear = function (removeColumns,removeColumnDefinitions) {
         $('#' + $this.params.ui.elementID + ' tbody').empty();
         $('#' + $this.params.ui.elementID + ' thead th').removeClass("sorted");
         $this.renderingHelpers.removePagingToolBox();
         if ($this.params.ui.displayEmptyMessage) {
             $this.renderingHelpers.renderEmptyDataRow();
         }
+        $this.params.paging.currentPage = 1;
+        $this.sorting = {sortCol: "", sortDir: ""};
+
         $this.rowsData = [];
         if(removeColumns){
             $('#' + $this.params.ui.elementID + ' thead').empty();
-            $this.needsToReacreateColumn = true;
+            if(removeColumnDefinitions){
+                $this.params.columns = undefined;
+            }
+            else{
+                $this.recreateFromOriginalDefinition = true;
+            }
+
         }
     };
 
+    /**
+     * Atualiza os dados da tabela
+     */
     this.refresh = function () {
         $this.renderingHelpers.renderTableRows();
     };
 
+    /**
+     * Insere uma nova linha na tabela (somente local)
+     * @param rowData
+     */
+    this.addRows = function (rowData) {
+        this.insertRows(-1,rowData);
+    };
 
+    /**
+     * Insere uma linha na tabela em determinada posição (somente local)
+     * @param position
+     * Local (baseado em zero) onde a nova linha será inserida
+     * @param rowData
+     * Objeto ou coleção de objetos que serão inseridos na tabela como linhas
+     */
+    this.insertRows = function (position, rowData) {
+        if (position===undefined || position < 0 || position >= $this.getRowCount()) {
+            position = undefined
+        }
+        if(rowData!==undefined) {
+            if(rowData.length ===undefined){
+                rowData = [rowData];
+            }
+            $this.rowsData = $this.rowsData.concat(rowData);
+            $this.renderingHelpers.renderAndPlotRows(true, rowData, true,position);
+            $this.runtimeHelpers.executePostRenderScripts();
+            $this.renderingHelpers.removeEmptyDataRow();
+            $this.renderingHelpers.removeErrorRow();
+            $this.renderingHelpers.removeAfterAddedRowsClass();
+        }
+    };
 
+    /**
+     * Altera o valor de uma célula da tabela (apenas localmente)
+     * @param position
+     * Linha na qual a modificação será feita
+     * @param cellName
+     * Nome da coluna (é o valor de bindingSource da coluna ou o nome da propriedade do objeto associado à coluna)
+     * @param newValue
+     * Novo valor da célula
+     */
+    this.changeCellData = function (position, cellName, newValue) {
+        if (position >= 0 && position < $this.getRowCount()) {
+            var rd = $this.getRowData([position]);
+            rd[cellName] = newValue;
+
+            var cInfo = $this.runtimeHelpers.getColumnInfo(cellName);
+            if (cInfo.index != -1) {
+                $this.renderingHelpers.renderChangedCell(cInfo,rd,position)
+            }
+            else {
+                throw "INVALID CELL";
+            }
+        }
+        else {
+            throw "INVALID POSITION";
+        }
+    };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -181,11 +303,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
      }
      };*/
 
-    //todo Levar estes métodos para o ruteZangada
-    var postRenderScripts = [];
-    this.registerAfterRenderScript = function (f) {
-        postRenderScripts.push(f);
-    };
 
     /*
      var renderTableHead = function (sb, params) {
@@ -321,17 +438,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }, 500);
     };
 
-    var getColumnInfo = function (cellName) {
-        var info = {};
-        info.index = $this.params.columns.findIndex(
-            function (element, index, array) {
-                var result = element.bindingSource == cellName;
-                if (result) info.cellData = element;
-                return result;
-            }
-        );
-        return info;
-    };
+
 
     var getTableRequestParams = function () {
         var paramObj = {
@@ -385,7 +492,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     //endregion
 
 
-
+/*
     this.addRows = function (rowData) {
         var html = getNewRowHTML(rowData);
         $this.params.rowsData = $this.params.rowsData.concat(rowData);
@@ -394,45 +501,11 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         removeEmptyDataRow();
         removeChangeAnimationClass();
     };
+*/
 
 
-    this.insertRows = function (position, rowData) {
-        if (position < 0 || position >= this.getRowCount()) {
-            this.addRows(rowData);
-        }
-        else {
-            var html = getNewRowHTML(rowData);
-            $this.params.rowsData.splice.apply($this.params.rowsData, [position, 0].concat(rowData));
-            $('#' + this.params.elementID + ' tbody > tr').eq(position).before(html);
-            executeAfterRenderScripts(true);
-            removeEmptyDataRow();
-            removeChangeAnimationClass();
-        }
-    };
 
-    this.changeCellData = function (position, cellName, newValue) {
-        if (position >= 0 && position < this.getRowCount()) {
-            $this.params.rowsData[position][cellName] = newValue;
-            var cInfo = getColumnInfo(cellName);
-            if (cInfo.index != -1) {
-                var row = $('#' + this.params.elementID + ' tbody > tr')[position];
-                var sb = new StringBuilder();
-                renderCellData($this.params.rowsData[position], cInfo.cellData, sb);
-                $($(row).children("td")[cInfo.index]).html(sb.toString());
-                var tTd = $($(row).children("td")[cInfo.index]);
-                tTd.addClass("changed-cell-1");
-                setTimeout(function () {
-                    tTd.removeClass("changed-cell-1");
-                }, 500);
-            }
-            else {
-                throw "INVALID CELL";
-            }
-        }
-        else {
-            throw "INVALID POSITION";
-        }
-    };
+
 
     this.filter = function (filterExpression) {
         if ($this.dataSourceLocation == "local") {

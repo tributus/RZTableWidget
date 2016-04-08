@@ -3,7 +3,7 @@
  */
 rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
     var $this = t;
-    this.getRows= function (callback) {
+    this.getRows = function (callback) {
         var getDataCallback = function (result, status, info) {
             if (status == "error") {
                 console.error("error getting table rows with:","result: ", result,"info: ",info);
@@ -45,5 +45,33 @@ rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
         else {
             $this.renderingHelpers.renderEmptyDataRow();
         }
-    }
+    };
+    //todo Levar estes métodos para o ruteZangada
+    this.enqueuePostRenderScript = function (f) {
+        $this.postRenderScripts.push(f);
+    };
+
+    this.executePostRenderScripts = function () {
+        $this.postRenderScripts.forEach(function (it) {
+           try{
+               it($this);
+           }
+           catch(err){
+               console.error("error running postRenderScript","error:",err, "sender:",$this,"script:",it);
+           }
+        });
+        $this.postRenderScripts = [];
+    };
+    this.getColumnInfo = function (cellName) {
+        var info = {};
+        info.index = $this.params.columns.findIndex(
+            function (element, index, array) {
+                var result = element.bindingSource == cellName;
+                if (result) info.cellData = element;
+                return result;
+            }
+        );
+        return info;
+    };
+
 };

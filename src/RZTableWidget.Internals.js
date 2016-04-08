@@ -19,11 +19,19 @@ rz.widgets.RZTableWidgetHelpers.Internals = {
         }
         return (classData != "") ? ' class="' + classData + '"' : "";
     },
-    plotOnBody: function (sb, target, preserve) {
+    plotOnBody: function (sb, target, preserve,position) {
         if (!preserve) {
             $(target + " tbody").empty();
+            $(target + " tbody").html(sb.toString());
         }
-        $(target + " tbody").html(sb.toString());
+        else{
+            if(position===undefined){
+                $(target + " tbody").append(sb.toString());
+            }
+            else{
+                $(target + " tbody > tr").eq(position).before(sb.toString());
+            }
+        }
     },
     getServerData: function (target, params) {
         ruteZangada.get(params.rowsData, function (d, r) {
