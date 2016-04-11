@@ -1,8 +1,8 @@
 #RZTableWidget
 
-Este widget cria exibiÁıes de dados na forma de tabela
+Este widget cria exibi√ß√µes de dados na forma de tabela
 
-DepenÍncias:
+Depen√™ncias:
 RZClientEngine >=0.0.1;
 
 pode ser baixado via npm adicionando-se:
@@ -15,24 +15,24 @@ pode ser baixado via npm adicionando-se:
 
 no arquivo package.json
 
-##Par‚metros de inicializaÁ„o:
+##Par√¢metros de inicializa√ß√£o:
 
-Par‚metro|DescriÁ„o|Default
+Par√¢metro|Descri√ß√£o|Default
 --- | --- | ---
-tableClass|classe utilizada na declaraÁ„o *table*. Os valores deste par‚metro obedecem as regras do semantic-ui. **Exemplos:** `'ui celled table,ui celled padded table','ui stripped table','ui very basic collapsing celled table'`| `ui celled table` 
-rowsDta|dados da tabela. pode ser um objeto ou a url de  um serviÁo [melhorar esta definiÁ„o]|`undefined`
-renderTableHead|define se o cabeÁalho da tabela ser· renderizado|`true`
-columns|definiÁ„o de colunas|`undefined`
+tableClass|classe utilizada na declara√ß√£o *table*. Os valores deste par√¢metro obedecem as regras do semantic-ui. **Exemplos:** `'ui celled table,ui celled padded table','ui stripped table','ui very basic collapsing celled table'`| `ui celled table` 
+rowsDta|dados da tabela. pode ser um objeto ou a url de  um servi√ßo [melhorar esta defini√ß√£o]|`undefined`
+renderTableHead|define se o cabe√ßalho da tabela ser√° renderizado|`true`
+columns|defini√ß√£o de colunas|`undefined`
 
 #TODO DOCUMENTAR:
 
 ```html
 columns = [
     { 
-        headerText:'Texto do cabeÁalho', 
+        headerText:'Texto do cabe√ßalho', 
         bindingSource:'nome da propriedade mapeada',
-        cellRenderer:"renderizador da cÈlula de dados (pode ser o nome de um render registrado ou uma function(value,[full]))",
-        headerRender:"renderizador do cabeÁalho de dados (pode ser o nome de um render registrado ou uma function(value,[full]))"
+        cellRenderer:"renderizador da c√©lula de dados (pode ser o nome de um render registrado ou uma function(value,[full]))",
+        headerRender:"renderizador do cabe√ßalho de dados (pode ser o nome de um render registrado ou uma function(value,[full]))"
     }
 ]
 ```
