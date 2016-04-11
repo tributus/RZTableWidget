@@ -180,5 +180,12 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
         }, 500);
 
     }
+    this.renderSortingIndicator = function (column, sortDir) {
+        var isAscending = sortDir != "desc";
+        var cssClass = (isAscending) ? "sorted ascending":"sorted descending";
+        $("#" + $this.params.ui.elementID + " th").removeClass("sorted ascending descending");
+        $("#" + $this.params.ui.elementID + ' th[data-bindingsource="'+column+'"]').addClass(cssClass);
+        //$("#" + $this.params.ui.elementID + " th").addClass(cssClass);
 
+    }
 };

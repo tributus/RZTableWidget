@@ -28,9 +28,8 @@ rz.widgets.RZTableWidgetHelpers.setupHelpers = function (t) {
                 var bs = el.data("bindingsource");
                 if (!el.hasClass("unsortable")) {
                     var isAscending = el.hasClass("sorted ascending");
-                    $("#" + $this.params.ui.elementID + " th").removeClass("sorted ascending descending");
-                    var cssClass = (isAscending) ? "sorted descending" : "sorted ascending";
-                    el.addClass(cssClass);
+                    var sortOrder = (isAscending)?"desc":"asc";
+                    $this.renderingHelpers.renderSortingIndicator(bs,sortOrder);
                     if (bs != "") {
                         $this.sorting.sortCol = bs;
                         $this.sorting.sortDir = (isAscending) ? "desc" : "asc";

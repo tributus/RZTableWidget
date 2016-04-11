@@ -19,7 +19,7 @@ rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
             if (dsType == "function") {
                 var p = {
                     paging: $this.params.paging,
-                    filter: $this.filter,
+                    filter: $this.filterExpression,
                     sorting: $this.sorting
                 };
                 $this.params.tableData.dataSource(p, getDataCallback);
@@ -34,7 +34,7 @@ rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
                 url = rz.utils.uri.mergeParam(url, "sortcol", $this.sorting.sortCol);
                 url = rz.utils.uri.mergeParam(url, "sortdir", $this.sorting.sortDir);
                 //filtering
-                url = rz.utils.uri.mergeParam(url, "filter", btoa(JSON.stringify($this.filter)));
+                url = rz.utils.uri.mergeParam(url, "filter", btoa(JSON.stringify($this.filterExpression)));
                 ruteZangada.get(url, getDataCallback);
             }
             else {

@@ -6,7 +6,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
     //internals declares
     var $this = this;
     $this.sorting = {sortCol: "", sortDir: ""};
-    $this.filter = {};
+    $this.filterExpression = undefined;
     $this.postRenderScripts = [];
 
     //helpers
@@ -61,6 +61,13 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.renderingHelpers.renderTableStructure(target, $this.renderingHelpers.renderTableRows);
     };
 
+    /**
+     * Ordena os dados de uma determinada coluna da tabela
+     * @param column
+     * nome da coluna (bindingsource)
+     * @param direction
+     * "asc" para ascendente ou "desc" para descendente
+     */
     this.sort = function (column,direction) {
         direction =  direction || "asc";
         $this.sorting = {
@@ -68,6 +75,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
             sortDir:direction
         };
         $this.params.paging.currentPage=1;
+        $this.renderingHelpers.renderSortingIndicator(column,direction);
         $this.refresh();
     };
 
@@ -265,6 +273,12 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
     };
 
+    this.filter = function (filterExpression) {
+        $this.filterExpression = filterExpression;
+        $this.params.paging.currentPage=1;
+        $this.refresh();
+    };
+
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -421,7 +435,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
      $this.params.columns.push(columnDefinition);
      });
      }
-     };*/
+     };
 
     var getNewRowHTML = function (rowData, isRefresh) {
         var sb = new StringBuilder();
@@ -432,13 +446,14 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         return sb.toString();
     };
 
+
     var removeChangeAnimationClass = function () {
         setTimeout(function () {
             $('#' + $this.params.elementID + ' tbody > tr').removeClass($this.params.addedAfterRowClass);
         }, 500);
     };
 
-
+     */
 
     var getTableRequestParams = function () {
         var paramObj = {
@@ -501,13 +516,13 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         removeEmptyDataRow();
         removeChangeAnimationClass();
     };
-*/
 
 
 
 
 
-    this.filter = function (filterExpression) {
+
+    this.filterXXX = function (filterExpression) {
         if ($this.dataSourceLocation == "local") {
             if ($this.params.unfilteredData === undefined) {
                 $this.params.unfilteredData = $this.params.rowsData;
@@ -555,5 +570,5 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         }
     };
 
-
+ */
 });

@@ -150,9 +150,32 @@
         <input type="text" id="cv" placeholder="new value">
     </div>
 </div>
-<button id="b6">filter</button>
+<div class="opt">
+    <div class="action-area">
+        <button>sort</button>
+    </div>
+    <div class="param-area">
+        <select id="s1">
+            <option value="name">name</option>
+            <option value="age">age</option>
+            <option value="gender">gender</option>
+        </select>
+        <select id="s2">
+            <option value="asc">asc</option>
+            <option value="desc">desc</option>
+        </select>
+    </div>
+</div>
+<div class="opt">
+    <div class="action-area">
+        <button>filter</button>
+    </div>
+    <div class="param-area">
+        <textarea id="filterta" placeholder="filter expression">[{"description":"Homens","field": "gender","operator": "equals","value":"\"m\""}]</textarea>
+    </div>
+</div>
 <br><br>
-<textarea id="filterta" placeholder="filter expression">[{"description":"Homens","field": "gender","operator": "equals","value":"\"m\""}]</textarea>
+
 <br><br>
 
 <div id="tc2"></div>
@@ -180,6 +203,14 @@
             {name: "Edite Nunes", age: 26, gender: "f"},
             {name: "Rafaela Lima", age: 27, gender: "f"}
         ];
+
+        /************FILTERING*******************/
+        if(p.filter !==undefined){
+            var jfe = new rz.plugins.jsonFilterEngine();
+            var f = jfe.buildFilterFunction(p.filter);
+            srdata = srdata.filter(f);
+        }
+        /************FILTERING*******************/
 
         /************SORTING*********************/
         var sorCol = p.sorting.sortCol;
@@ -382,11 +413,21 @@
 
     actions["changeCellData"] = function(){
         var pos = $("#cr").val();
-        name = $("#cn").val();
-        value = $("#cv").val();
+        var name = $("#cn").val();
+        var value = $("#cv").val();
         wi2.changeCellData(pos,name,value);
-
     };
+
+    actions["sort"] = function () {
+        var col = $("#s1").val();
+        var dir = $("#s2").val();
+        wi2.sort(col,dir);
+    };
+    actions["filter"] = function () {
+        var e = $("#filterta").val();
+        wi2.filter(JSON.parse(e));
+    };
+
 
     $(".action-area button").click(function (t) {
         var action = $(t.currentTarget).text();
