@@ -1,5 +1,65 @@
 #RZTableWidget
+Table view Widget  
 
+##Dependencies:
+RZClientEngine >=0.0.1;
+##Installation:
+```html
+Bower:
+bower install rztablewidget
+```
+##Usage:
+
+```html
+html:
+<div id="elementID"></div>
+
+Javascript:
+var params = {...}
+var widgetInstance = ruteZangada.renderWidget("rz-table", "elementID", params);
+```
+##Params
+    var params = {
+                tableData: {
+                    dataSource: undefined
+                },
+                columns: undefined,
+                ui: {
+                    tableClass: "ui basic table",                                                       //initial table style
+                    renderTableHead: true,                                                              //define if table header will be rendered
+                    elementID: elementID,                                                               //root element id;
+                    allowSorting: true,                                                                 //define if table allow sorting
+                    addedAfterRowClass: "added-after-row",                                              //css class to associate with new added rows
+                    displayEmptyMessage: true,                                                          //define if empry message will be displayed
+                    displayTableFooter: false,                                                          //define if table footer will be rendered
+                    emptyMessageRenderer: $this.renderingHelpers.emptyMessageRendererFunction,          //default renderer for empty messages
+                    errorMessageRenderer: $this.renderingHelpers.errorMessageRendererFunction           //default renderer for error messages
+                },
+                language: {                                                                             //localized strings for widget
+                    paginate: {                                                                         //localized strings for pagination
+                        page: "Page",                                                                   //"Page" localized string
+                        of: "of",                                                                       //"of" localized string
+                        first: "first",                                                                 //"first" localized string
+                        previous: "previous",                                                           //"previous" localized string
+                        next: "next",                                                                   //"next" localized string
+                        last: "last"                                                                    //"last" localized string
+                    },
+                    emptyTableMessage: "no data to display",                                            //empty message
+                    errorGettingDataMessage: "error getting table data"                                 //empty message
+                },
+                paging: {                                                                               //pagination definition for plugin
+                    enablePaging: false,                                                                //enables or disable paging
+                    pageSize: 20,                                                                       //default page size
+                    currentPage: 1                                                                      //default page
+                }
+            };
+
+##Operations and events
+For a complete list of widget operations and events, see the src/InterfaceAndEvents.js file 
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Old Docs (move to Confluence
 Este widget cria exibições de dados na forma de tabela
 
 Depenências:
