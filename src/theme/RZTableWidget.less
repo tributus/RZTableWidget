@@ -1,0 +1,47 @@
+/*Variablea*/
+@animation-bg-color:#D1E2F4;
+
+/*Mixins*/
+.animation-definition-mixin(@color){
+  @keyframes rz-changecell-animation {
+    0% {
+      background: none;
+    }
+    10.0% {
+      background: @animation-bg-color;
+    }
+    100.0% {
+      background: none;
+    }
+  }
+  @-webkit-keyframes rz-changecell-animation {
+    0% {
+      background: none;
+    }
+    10.0% {
+      background: @animation-bg-color;
+    }
+    100.0% {
+      background: none;
+    }
+  }
+}
+
+.animation-mixin(){
+  -webkit-animation-name: animation;
+  -webkit-animation-duration: 600ms;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-play-state: running;
+  animation-name: animation;
+  animation-duration: 600ms;
+  animation-timing-function: ease-in-out;
+  animation-play-state: running;
+  background: none;
+}
+
+
+
+.animation-definition-mixin(@animation-bg-color);
+.added-after-row > td, .changed-cell-1,.changed-cell-2 {
+  .animation-mixin();
+}
