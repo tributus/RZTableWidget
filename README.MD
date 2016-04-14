@@ -15,9 +15,8 @@ html:
 <div id="elementID"></div>
 ```
 
-js:
-```javascript
 Javascript:
+```javascript
 var params = {...}
 var widgetInstance = ruteZangada.renderWidget("rz-table", "elementID", params);
 ```
