@@ -62,7 +62,8 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
                 $this.params.paging.totalPages = ds.header.totalPages;
                 $this.rowsData = ds.rows;
 
-                var defined = $this.setupHelpers.ensureColumns($this.getRowData(0));
+
+                var defined = $this.setupHelpers.ensureColumns(($this.rowsData !==undefined && $this.rowsData.length > 0)?$this.rowsData[0]:undefined);
                 if (defined || $this.recreateFromOriginalDefinition) {
                     that.renderTableHeaderContent();
                     $this.recreateFromOriginalDefinition = false;
