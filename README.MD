@@ -10,15 +10,20 @@ bower install rztablewidget
 ```
 ##Usage:
 
-```html
 html:
+```html
 <div id="elementID"></div>
+```
 
+js:
+```javascript
 Javascript:
 var params = {...}
 var widgetInstance = ruteZangada.renderWidget("rz-table", "elementID", params);
 ```
+
 ##Params
+```javascript
     var params = {
                 tableData: {
                     dataSource: undefined
@@ -53,7 +58,7 @@ var widgetInstance = ruteZangada.renderWidget("rz-table", "elementID", params);
                     currentPage: 1                                                                      //default page
                 }
             };
-
+```
 ##Operations and events
 For a complete list of widget operations and events, see the src/InterfaceAndEvents.js file 
 
