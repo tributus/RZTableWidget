@@ -1,0 +1,49 @@
+/*Variablea*/
+/*Mixins*/
+@keyframes rz-changecell-animation {
+  0% {
+    background: none;
+  }
+  10.0% {
+    background: #D1E2F4;
+  }
+  100.0% {
+    background: none;
+  }
+}
+@-webkit-keyframes rz-changecell-animation {
+  0% {
+    background: none;
+  }
+  10.0% {
+    background: #D1E2F4;
+  }
+  100.0% {
+    background: none;
+  }
+}
+.rz-table-widget .added-after-row > td,
+.rz-table-widget .changed-cell-1,
+.rz-table-widget .changed-cell-2 {
+  -webkit-animation-name: rz-changecell-animation;
+  -webkit-animation-duration: 600ms;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-play-state: running;
+  animation-name: rz-changecell-animation;
+  animation-duration: 600ms;
+  animation-timing-function: ease-in-out;
+  animation-play-state: running;
+  background: none;
+}
+.rz-table-widget .rz-pagination-bar > div {
+  padding: 10px 5px;
+}
+.rz-table-widget .rz-pagination-bar > input {
+  width: 60px;
+  text-align: center;
+  border: none;
+  outline: none;
+}
+.rz-table-widget .rz-pagination-bar > span {
+  padding: 10px 5px;
+}
