@@ -26,22 +26,43 @@
     }
   }
 }
-
-.animation-mixin(){
-  -webkit-animation-name: animation;
-  -webkit-animation-duration: 600ms;
-  -webkit-animation-timing-function: ease-in-out;
-  -webkit-animation-play-state: running;
-  animation-name: animation;
-  animation-duration: 600ms;
-  animation-timing-function: ease-in-out;
-  animation-play-state: running;
+.animation-mixin(@name,@duration,@timing-function,@play-sate){
+  -webkit-animation-name: @name;
+  -webkit-animation-duration: @duration;
+  -webkit-animation-timing-function: @timing-function;
+  -webkit-animation-play-state: @play-sate;
+  animation-name: @name;
+  animation-duration: @duration;
+  animation-timing-function: @timing-function;
+  animation-play-state: @play-sate;
   background: none;
 }
 
+.rz-table-widget{
+  .animation-definition-mixin(@animation-bg-color);
+  .added-after-row > td, .changed-cell-1,.changed-cell-2 {
+    .animation-mixin(rz-changecell-animation,600ms,ease-in-out,running);
+  }
+  .rz-pagination-bar{
+    & > div{
+      padding: 10px 5px;
+    }
+
+    & > input{
+      width: 60px;
+      text-align: center;
+      border: none;
+      outline: none;
+    }
+
+    & > span{
+      padding: 10px 5px;
+    }
+  }
 
 
-.animation-definition-mixin(@animation-bg-color);
-.added-after-row > td, .changed-cell-1,.changed-cell-2 {
-  .animation-mixin();
 }
+
+
+
+

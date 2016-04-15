@@ -51,16 +51,16 @@ module.exports = function (grunt) {
             concat: {
                 dist: {
                     src: ['<%= options.srcFiles %>'],
-                    dest: "dist/RZTableWidget.js"
+                    dest: "dist/rztablewidget.js"
                 }
             },
             uglify: {
                 options: {
                     mangle: false
                 },
-                my_target: {
+                js: {
                     files: {
-                        "dist/RZTableWidget.min.js": ['dist/RZTableWidget.js']
+                        "dist/rztablewidget.min.js": ['dist/rztablewidget.js']
                     }
                 }
             },
@@ -85,6 +85,27 @@ module.exports = function (grunt) {
                     dest: 'test/SpecRunner.html'
                 }
             },
+            less:{
+                dev:{
+                    options:{
+                        compress:false
+                    },
+                    files:{
+                        'dist/rztablewidget.css':'src/theme/RZTableWidget.less'
+                    }
+                }
+            },
+            cssmin:{
+                options: {
+                    shorthandCompacting: false,
+                    roundingPrecision: -1
+                },
+                target: {
+                    files: {
+                        'dist/rztablewidget.min.css': ['dist/rztablewidget.css']
+                    }
+                }
+            },
             jasmine: {
                 src: 'test/src/*.js',
                 options: {
@@ -100,9 +121,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
 
 
-    grunt.registerTask('default', ['concat', 'uglify', 'copy:test','copy:test_lib', 'copy:test_template']);
+    grunt.registerTask('default', ['concat','less','cssmin','uglify', 'copy:test','copy:test_lib', 'copy:test_template']);
     grunt.registerTask('test', ['jasmine']);
 
 };

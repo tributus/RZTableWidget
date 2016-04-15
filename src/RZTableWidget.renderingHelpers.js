@@ -10,7 +10,7 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
     };
     this.renderTableStructure = function (target, renderRowsMethod) {
         var sb = new StringBuilder();
-        sb.appendFormat('<table id="{1}" class="{0}">', $this.params.ui.tableClass, $this.params.ui.elementID);
+        sb.appendFormat('<table id="{1}" class="rz-table-widget {0}">', $this.params.ui.tableClass, $this.params.ui.elementID);
         that.renderTableHeader(sb);
         sb.append('<tbody></tbody>');
         if ($this.params.paging.enablePaging || $this.params.ui.displayTableFooter) {
@@ -111,8 +111,8 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
                 var sb = new StringBuilder();
                 //sb.appendFormat('   <td colspan="{0}">', params.columns.length);
 
-                sb.appendFormat('<div id="{0}" class="ui right floated pagination menu">', pagingToolboxID);
-                sb.appendFormat('    <div style="padding: 10px 5px">{0} </div><input id="{4}_paginginput" type="text" style="width: 60px;text-align: center;border: none;outline: none;" value="{2}" data-paging-action="specific"> <span style="padding: 10px 5px">{1}</span> <span style="padding: 10px 5px" id="{4}_total_pages_el">{3}</span>',
+                sb.appendFormat('<div id="{0}" class="ui right floated pagination menu rz-pagination-bar">', pagingToolboxID);
+                sb.appendFormat('    <div>{0} </div><input id="{4}_paginginput" type="text" class="paging-input" value="{2}" data-paging-action="specific"> <span>{1}</span> <span id="{4}_total_pages_el">{3}</span>',
                     $this.params.language.paginate.page,
                     $this.params.language.paginate.of,
                     $this.params.paging.currentPage,
