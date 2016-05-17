@@ -22,6 +22,14 @@
   ],
   "devDependencies": {
     "RZClientEngine": "rutezangada-client-engine#~0.0.2",
-    "semantic": "semantic-ui#~2.1.8"
+    "semantic": "semantic-ui#~2.1.8",
+    "semantic-ui-reset": "^2.1.7",
+    "semantic-ui-site": "^2.1.7",
+    "semantic-ui-icon": "^2.1.7",
+    "semantic-ui-table": "^2.1.7",
+    "semantic-ui-transition": "^2.1.7",
+    "semantic-ui-dropdown": "^2.1.7",
+    "semantic-ui-button": "^2.1.7",
+    "semantic-ui-menu": "^2.1.7"
   }
 }
