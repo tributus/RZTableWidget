@@ -103,6 +103,19 @@ rz.widgets.RZTableWidgetHelpers = {
             ]
         },
         {
+            name:"find",
+            friendlyName:"Procurar",
+            description:"Executa uma pesquisa arbitrária de dados",
+            params:[
+                {
+                    name:"searchKey",
+                    friendlyName:"Chave da busca",
+                    description:"Chave da pesquisa de dados",
+                    type:"any"
+                }
+            ]
+        },
+        {
             name:"gotoPage",
             friendlyName:"Ir para página",
             description:"Navega para uma página de dados específica",
