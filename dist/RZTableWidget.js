@@ -903,7 +903,7 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidget
         $this.refresh();
     };
     this.find = function (searchKey) {
-        $this.filterExpression = [{searchKey:searchKey}];
+        $this.filterExpression = {format:"simple-search", searchKey:searchKey};
         $this.params.paging.currentPage=1;
         $this.refresh();
     };
