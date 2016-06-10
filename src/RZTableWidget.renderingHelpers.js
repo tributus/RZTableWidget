@@ -140,7 +140,7 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
             );
             $this.internals.plotOnBody(sb, "#" + $this.params.ui.elementID);
         }
-    };
+    }; 
     this.renderErrorDataRow = function () {
         var sb = new StringBuilder();
         sb.appendFormat('<tr class="error-row"><td colspan="60000">{0}</td></tr>',
