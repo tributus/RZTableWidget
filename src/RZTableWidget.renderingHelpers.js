@@ -135,7 +135,6 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
     this.renderEmptyDataRow = function () {
         if ($this.params.ui.displayEmptyMessage) {
             var sb = new StringBuilder();
-            var ccount = ($this.params.columns !== undefined) ? $this.params.columns.length || 1 : 1;
             sb.appendFormat('<tr class="empty-row"><td colspan="6000">{0}</td></tr>',
                 $this.params.ui.emptyMessageRenderer($this.params.language.emptyTableMessage)
             );
@@ -144,7 +143,6 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
     };
     this.renderErrorDataRow = function () {
         var sb = new StringBuilder();
-        var ccount = ($this.params.columns !== undefined) ? $this.params.columns.length || 1 : 1;
         sb.appendFormat('<tr class="error-row"><td colspan="60000">{0}</td></tr>',
             $this.params.ui.errorMessageRenderer($this.params.language.errorGettingDataMessage)
         );
