@@ -6,7 +6,7 @@ RZClientEngine >=0.0.1;
 ##Installation:
 ```html
 Bower:
-bower install rztablewidget
+bower install rutezangada-tablewidget
 ```
 ##Usage:
 
