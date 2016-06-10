@@ -151,7 +151,7 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
         $this.internals.plotOnBody(sb, "#" + $this.params.ui.elementID);
     };
     this.emptyMessageRendererFunction = function (message) {
-        return '<h1>*</h1>'.replace("*", message);
+        return '<p>*</p>'.replace("*", message);
     };
     this.errorMessageRendererFunction = function () {
         return '<div class="error-message">error getting server data</div>';
