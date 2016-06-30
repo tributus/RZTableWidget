@@ -40,7 +40,7 @@ rz.widgets.RZTableWidgetHelpers.renderingHelpers = function (t) {
                 sb.appendFormat('<th{0} data-bindingsource="{1}">', $this.internals.resolveHeaderClass(col), col.bindingSource || "");
                 var renderer = rz.widgets.tableHelpers.getCellRenderer(col.headerRender || 'default');
                 var value = col.headerText || col.bindingSource;
-                sb.append(renderer(value, col));
+                sb.append(renderer(value, col,$this));
                 sb.append('</th>');
             });
             sb.append('</tr>');
