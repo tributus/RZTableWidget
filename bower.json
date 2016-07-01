@@ -30,7 +30,6 @@
     "semantic-ui-transition": "^2.1.7",
     "semantic-ui-dropdown": "^2.1.7",
     "semantic-ui-button": "^2.1.7",
-    "semantic-ui-menu": "^2.1.7",
-    "rutezangada-tablewidget": "^0.4.3"
+    "semantic-ui-menu": "^2.1.7"
   }
 }

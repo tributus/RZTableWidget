@@ -289,7 +289,11 @@
                 actions: [
                     {action: "action1", label: "Action 1"},
                     {action: "action2", label: "Action 2"},
-                    {action: "action3", label: "Action 3"}
+                    {
+                        action: "action3", label: "Action 3 (only for womans)", condition: function (full) {
+                        return full.gender == 'f';
+                    }
+                    }
                 ],
                 clickHandler: function (action, rowData, rowIndex) {
                     console.log(action, "for", rowData, "at", rowIndex, "row");

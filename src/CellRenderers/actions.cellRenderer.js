@@ -11,11 +11,10 @@ rz.widgets.tableHelpers.createCellRenderer("actions-renderer", function (value, 
     sb.append('  <div class="menu">');
     //sb.append('    <div class="header">Ações</div>');
     columnDef.actions.forEach(function (it) {
-        var canRender = (it.condition!==undefined)? it.condition(value,full,it,columnDef,targetInstance):true;
+        var canRender = (it.condition!==undefined)? it.condition(full,it,columnDef,targetInstance):true;
         if(canRender){
             sb.appendFormat('    <div class="item" data-value="{1}">{0}</div>',it.label,it.action);
         }
-
     });
 
     sb.append('  </div>');

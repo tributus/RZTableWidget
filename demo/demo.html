@@ -123,57 +123,57 @@
 
     /********************************exemplo 2 ***************************************/
     var p2 = {
-                ui: {
-                    tableClass: "ui sortable table striped",
-                    emptyTableMessage: "nenhum item para exibir",
-                    elementID:"tbkct",
-                    emptyMessageRenderer: function (msg) {
-                        return '<span style="color:lightgray">' + msg + '</span>';
-                    }
+        ui: {
+            tableClass: "ui sortable table striped",
+            emptyTableMessage: "nenhum item para exibir",
+            elementID: "tbkct",
+            emptyMessageRenderer: function (msg) {
+                return '<span style="color:lightgray">' + msg + '</span>';
+            }
+        },
+        columns: [
+            {
+                headerText: 'Nome',
+                bindingSource: 'name',
+                cellRenderer: 'default',
+                size: 10
+            },
+            {
+                headerText: "Idade", bindingSource: "age", size: 3, alignment: "right", dataType: "numeric"
+            },
+            {
+                headerText: 'Gênero',
+                bindingSource: 'gender',
+                cellRenderer: genderCustomRenderer,
+                headerRender: headerCustomRenderer,
+                size: 3,
+                alignment: 'center',
+                headerAlignment: 'right',
+                sortAscMethod: function (a, b) {
+                    return sortGender(a, b);
                 },
-                columns: [
-                    {
-                        headerText: 'Nome',
-                        bindingSource: 'name',
-                        cellRenderer: 'default',
-                        size: 10
-                    },
-                    {
-                        headerText: "Idade", bindingSource: "age", size: 3, alignment: "right", dataType: "numeric"
-                    },
-                    {
-                        headerText: 'Gênero',
-                        bindingSource: 'gender',
-                        cellRenderer: genderCustomRenderer,
-                        headerRender: headerCustomRenderer,
-                        size: 3,
-                        alignment: 'center',
-                        headerAlignment: 'right',
-                        sortAscMethod: function (a, b) {
-                            return sortGender(a, b);
-                        },
-                        sortDescMethod: function (a, b) {
-                            return sortGender(b, a);
-                        }
-                    }
-                    //,{cellRenderer: 'actions-renderer'}
-                ],
-                paging: {
-                    enablePaging: true,
-                    pageSize: 5,
-                    currentPage: 1
-                },
-                language: {
-                    paginate: {
-                        page: "Página",
-                        of: "de",
-                        first: "primeira",
-                        previous: "anterior",
-                        next: "próxima",
-                        last: "última"
-                    }
+                sortDescMethod: function (a, b) {
+                    return sortGender(b, a);
                 }
-            };
+            }
+            //,{cellRenderer: 'actions-renderer'}
+        ],
+        paging: {
+            enablePaging: true,
+            pageSize: 5,
+            currentPage: 1
+        },
+        language: {
+            paginate: {
+                page: "Página",
+                of: "de",
+                first: "primeira",
+                previous: "anterior",
+                next: "próxima",
+                last: "última"
+            }
+        }
+    };
 
     p2.rowsData = srdata;
 
@@ -193,7 +193,7 @@
                 '<span style="color:pink">Feminino</span>';
     }
 
-    function headerCustomRenderer(value, full,target) {
+    function headerCustomRenderer(value, full, target) {
         console.log(value, full);
         return '<span>' + value + ' <i class="heterosexual icon"></i></span>';
     }
@@ -273,7 +273,11 @@
             actions: [
                 {action: "action1", label: "Action 1"},
                 {action: "action2", label: "Action 2"},
-                {action: "action3", label: "Action 3"}
+                {
+                    action: "action3", label: "Action 3 (only for womans)", condition: function (full) {
+                        return full.gender == 'f';
+                    }
+                }
             ],
             clickHandler: function (action, rowData, rowIndex) {
                 console.log(action, "for", rowData, "at", rowIndex, "row");
