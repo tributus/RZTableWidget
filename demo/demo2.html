@@ -12,10 +12,12 @@
     <link rel="stylesheet" type="text/css" href="../bower_components/semantic-ui-dropdown/dropdown.min.css">
     <link rel="stylesheet" type="text/css" href="../bower_components/semantic-ui-button/button.min.css">
     <link rel="stylesheet" type="text/css" href="../bower_components/semantic-ui-menu/menu.min.css">
+    <link rel="stylesheet" type="text/css" href="../bower_components/semantic-ui-checkbox/checkbox.min.css">
     <link rel="stylesheet" type="text/css" href="../dist/RZTableWidget.css">
     <script src="../bower_components/semantic-ui-site/site.min.js"></script>
     <script src="../bower_components/semantic-ui-transition/transition.min.js"></script>
     <script src="../bower_components/semantic-ui-dropdown/dropdown.min.js"></script>
+    <script src="../bower_components/semantic-ui-checkbox/checkbox.min.js"></script>
     <script src="../dist/RZTableWidget.js"></script>
 
     <style>
@@ -259,6 +261,15 @@
         },
 
         columns: [
+            {
+                cellRenderer:'checkbox',
+                cssClass:'toggle ',
+                checkProperty:"ativo.marcado",
+                checkConverter:function(v){return (v)?"ATIVO":"INATIVO"},
+                onChange:function(action,full,value,params,targetInstance){
+                    console.log("Change for",action,full,value,params,targetInstance);
+                }
+            },
             {
                 headerText: 'Nome',
                 bindingSource: 'name',
