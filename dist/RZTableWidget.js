@@ -974,6 +974,6 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table",
     };
         this.getElementID = function(prefix){
             var p = prefix || "";
-            return this.params.ui.elementID;
+            return p + this.params.ui.elementID;
         }
 });
