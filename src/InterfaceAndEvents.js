@@ -2,6 +2,9 @@
  * Created by Anderson on 20/01/2016.
  */
 rz.widgets.RZTableWidgetHelpers = {
+    TableWidgetEvents:[
+        "data-loaded"
+    ],
     TableWidgetInterface:[
         {
             name:"addRows", description:"Adiciona uma ou mais linhas à tabela", friendlyName:"Adicionar linhas",
