@@ -135,6 +135,11 @@ rz.widgets.RZTableWidgetHelpers = {
             name:"refresh",
             friendlyName:"Atualizar",
             description:"Atualiza o conteúdo da página"
+        },
+        {
+            name:"getElementID",
+            friendlyName:"Get ID Element",
+            description:"Retorna o identificador do elemento html base do controle."
         }
     ]
 };
@@ -967,4 +972,8 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table",
         $this.params.paging.currentPage=1;
         $this.refresh();
     };
+        this.getElementID = function(prefix){
+            var p = prefix || "";
+            return this.params.ui.elementID;
+        }
 });

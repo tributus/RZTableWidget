@@ -135,6 +135,11 @@ rz.widgets.RZTableWidgetHelpers = {
             name:"refresh",
             friendlyName:"Atualizar",
             description:"Atualiza o conteúdo da página"
+        },
+        {
+            name:"getElementID",
+            friendlyName:"Get ID Element",
+            description:"Retorna o identificador do elemento html base do controle."
         }
     ]
 };

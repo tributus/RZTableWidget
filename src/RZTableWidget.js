@@ -286,4 +286,8 @@ rz.widgets.TableWidget = ruteZangada.widget("rz-table",
         $this.params.paging.currentPage=1;
         $this.refresh();
     };
+        this.getElementID = function(prefix){
+            var p = prefix || "";
+            return this.params.ui.elementID;
+        }
 });
