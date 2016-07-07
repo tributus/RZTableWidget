@@ -682,7 +682,10 @@ rz.widgets.tableHelpers.createCellRenderer("default", function (value) {
 /**
  * Created by anderson.santos on 18/01/2016.
  */
-rz.widgets.TableWidget = ruteZangada.widget("rz-table", rz.widgets.RZTableWidgetHelpers.TableWidgetInterface, [], function () {
+rz.widgets.TableWidget = ruteZangada.widget("rz-table",
+    rz.widgets.RZTableWidgetHelpers.TableWidgetInterface,
+    rz.widgets.RZTableWidgetHelpers.TableWidgetEvents,
+    function () {
 
     //internals declares
     var $this = this;
