@@ -8,9 +8,9 @@ rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
             if (status == "error") {
                 console.error("error getting table rows with:","result: ", result,"info: ",info);
                 $this.renderingHelpers.renderErrorDataRow();
-                //renderError()
             }
             else {
+                $this.raiseEvent("data-loaded",{result:result},$this);
                 callback(result);
             }
         };
@@ -46,7 +46,7 @@ rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
             $this.renderingHelpers.renderEmptyDataRow();
         }
     };
-    //todo Levar estes métodos para o ruteZangada
+    //todo Levar estes mï¿½todos para o ruteZangada
     this.enqueuePostRenderScript = function (f) {
         $this.postRenderScripts.push(f);
     };

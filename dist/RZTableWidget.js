@@ -425,9 +425,9 @@ rz.widgets.RZTableWidgetHelpers.runtimeHelpers = function (t) {
             if (status == "error") {
                 console.error("error getting table rows with:","result: ", result,"info: ",info);
                 $this.renderingHelpers.renderErrorDataRow();
-                //renderError()
             }
             else {
+                $this.raiseEvent("data-loaded",{result:result},$this);
                 callback(result);
             }
         };

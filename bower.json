@@ -18,7 +18,9 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "src",
+    "lib"
   ],
   "devDependencies": {
     "RZClientEngine": "rutezangada-client-engine#^0.1.5",
